@@ -37,5 +37,9 @@ namespace BlobFighters.Tests
         {
             spriteBatch.Draw(texture, Position, Color.White);
         }
+
+        protected override void OnDrawGUI(SpriteBatch spriteBatch)
+        {
+        }
     }
 }
