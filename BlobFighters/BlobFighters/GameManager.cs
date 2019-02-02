@@ -1,5 +1,6 @@
 ﻿using BlobFighters.Core;
 using BlobFighters.Scenes;
+using BlobFighters.Tests;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,6 +12,10 @@ namespace BlobFighters
     /// </summary>
     public class GameManager : Game
     {
+        private const int Width = 1920;
+
+        private const int Height = 1080;
+
         private static GameManager instance;
 
         public static GameManager Instance
@@ -35,7 +40,13 @@ namespace BlobFighters
         {
             IsMouseVisible = true;
 
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this)
+            {
+                IsFullScreen = true,
+                PreferredBackBufferWidth = Width,
+                PreferredBackBufferHeight = Height
+            };
+
             Content.RootDirectory = "Content";
         }
 
@@ -106,8 +117,6 @@ namespace BlobFighters
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
             ActiveScene.Draw(spriteBatch);
 
             base.Draw(gameTime);

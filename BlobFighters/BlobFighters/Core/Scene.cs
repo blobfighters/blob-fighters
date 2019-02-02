@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,14 @@ namespace BlobFighters.Core
 
         private List<GameObject> destroyedGameObjects;
 
+        protected Color BackgroundColor { get; set; }
+
         public Scene()
         {
             gameObjects = new Dictionary<string, GameObject>();
             destroyedGameObjects = new List<GameObject>();
+
+            BackgroundColor = Color.White;
         }
 
         public void Init()
@@ -36,10 +41,16 @@ namespace BlobFighters.Core
         
         public void Draw(SpriteBatch spriteBatch)
         {
+            GameManager.Instance.GraphicsDevice.Clear(BackgroundColor);
+
+            spriteBatch.Begin();
+
             foreach (GameObject gameObject in gameObjects.Values)
                 gameObject.Draw(spriteBatch);
 
             OnDraw(spriteBatch);
+
+            spriteBatch.End();
         }
 
         public void Destroy()

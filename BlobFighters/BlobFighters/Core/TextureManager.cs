@@ -34,7 +34,7 @@ namespace BlobFighters.Core
             return textures[textureId];
         }
 
-        public void LoadTexture(string path, string textureId)
+        public void Load(string path, string textureId)
         {
             if (textures.ContainsKey(textureId))
                 throw new InvalidOperationException("Cannot overwrite exsiting texture ID!");
@@ -43,7 +43,7 @@ namespace BlobFighters.Core
             textures[textureId] = texture ?? throw new InvalidOperationException($"Could not find the texture {path}.");
         }
 
-        public void ReleaseTextures()
+        public void Release()
         {
             foreach (Texture2D texture in textures.Values)
                 GameManager.Instance.Content.Unload();
