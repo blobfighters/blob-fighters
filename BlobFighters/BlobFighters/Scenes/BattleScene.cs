@@ -1,4 +1,5 @@
 ﻿using BlobFighters.Core;
+using BlobFighters.Objects;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,11 @@ namespace BlobFighters.Scenes
 {
     public class BattleScene : Scene
     {
+        private Blob blob;
+
         protected override void OnInit()
         {
+            blob = new Blob();
         }
 
         protected override void OnUpdate(float deltaTime)
