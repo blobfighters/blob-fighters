@@ -38,17 +38,16 @@ namespace BlobFighters.Objects
         private const float NeckPivot = 0.25f;
 
         private const float HeadDensity = 0.1f;
-        private const float HeadMaxTorque = 0.25f;
-        private const float HeadImpulse = 1f;
-        private const float HeadAngleLimit = 0.5f;
-        private const float HeadCorrectionFactor = 10f;
+        private const float HeadStiffness = 4f;
+
+        private const float ArmLength = 0.5f;
+        private const float ArmWidth = 0.15f;
+        private const float ArmStiffness = 7.5f;
 
         private Body body;
         private Body head;
-        private Body leftArm;
-        private Body rightArm;
-
-        private RevoluteJoint headJoint;
+        private readonly Body leftArm;
+        private readonly Body rightArm;
 
         private List<Body> ownedBodies;
 
@@ -65,6 +64,8 @@ namespace BlobFighters.Objects
 
             CreateBody();
             CreateHead();
+            leftArm = CreateArm(BodyWidth * 0.5f);
+            rightArm = CreateArm(-BodyWidth * 0.5f);
         }
 
         private void CreateBody()
@@ -77,10 +78,10 @@ namespace BlobFighters.Objects
 
             body.CreateFixture(new PolygonShape(new FarseerPhysics.Common.Vertices(new Vector2[]
             {
-                new Vector2(-BodyWidth * 0.5f, -BodyHeight), // Top left corner
-                new Vector2(BodyWidth * 0.5f, -BodyHeight), // Top right corner
-                new Vector2(BodyWidth * 0.5f, 0f), // Bottom right corner
-                new Vector2(-BodyWidth * 0.5f, 0f), // Bottom left corner
+                new Vector2(-BodyWidth * 0.5f, -BodyHeight),
+                new Vector2(BodyWidth * 0.5f, -BodyHeight),
+                new Vector2(BodyWidth * 0.5f, 0f),
+                new Vector2(-BodyWidth * 0.5f, 0f),
             }), 1f));
 
             Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity));
@@ -94,13 +95,38 @@ namespace BlobFighters.Objects
             head = new Body(Scene.World, Position - new Vector2(0f, BodyHeight + NeckLength), 0f, BodyType.Dynamic);
             head.CreateFixture(new CircleShape(BodyWidth * 0.5f, HeadDensity));
 
-            headJoint = JointFactory.CreateRevoluteJoint(Scene.World, body, head, new Vector2(0f, NeckPivot));
-            headJoint.MotorEnabled = true;
-            headJoint.MaxMotorTorque = HeadMaxTorque;
-            headJoint.MotorImpulse = HeadImpulse;
-            headJoint.LimitEnabled = true;
-            headJoint.LowerLimit = -HeadAngleLimit;
-            headJoint.UpperLimit = HeadAngleLimit;
+            JointFactory.CreateWeldJoint(Scene.World, body, head, new Vector2(0f, -BodyHeight), new Vector2(0f, NeckPivot)).FrequencyHz = HeadStiffness;
+        }
+
+        private Body CreateArm(float offset)
+        {
+            Body shoulder = CreateArmSegment(Position - new Vector2(offset, BodyHeight));
+            Body forearm = CreateArmSegment(Position - new Vector2(offset, BodyHeight - ArmLength));
+
+            JointFactory.CreateWeldJoint(Scene.World, shoulder, forearm, new Vector2(0f, -ArmLength * 0.5f), new Vector2(0f, ArmLength * 0.5f)).FrequencyHz = ArmStiffness;
+            JointFactory.CreateWeldJoint(Scene.World, body, forearm, new Vector2(offset, -BodyHeight), new Vector2(0f, -ArmLength * 0.5f)).FrequencyHz = ArmStiffness;
+
+            shoulder.IgnoreCollisionWith(body);
+            shoulder.IgnoreCollisionWith(head);
+            forearm.IgnoreCollisionWith(body);
+            forearm.IgnoreCollisionWith(head);
+
+            return forearm;
+        }
+
+        private Body CreateArmSegment(Vector2 position)
+        {
+            Body segment = new Body(Scene.World, position, 0f, BodyType.Dynamic);
+
+            segment.CreateFixture(new PolygonShape(new FarseerPhysics.Common.Vertices(new Vector2[]
+            {
+                new Vector2(-ArmWidth * 0.5f, -ArmLength * 0.5f),
+                new Vector2(ArmWidth * 0.5f, -ArmLength * 0.5f),
+                new Vector2(ArmWidth * 0.5f, ArmLength * 0.5f),
+                new Vector2(-ArmWidth * 0.5f, ArmLength * 0.5f)
+            }), 0.5f));
+
+            return segment;
         }
 
         private bool OnBaseCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
@@ -128,10 +154,8 @@ namespace BlobFighters.Objects
             body.ApplyForce(new Vector2(state.ThumbSticks.Left.X * bodyMovementForce, 0f));
             body.ApplyTorque(-body.Rotation * BodyRotationForce);
 
-            headJoint.MotorSpeed = -headJoint.JointAngle * HeadCorrectionFactor;
-
             if (state.Buttons.A == ButtonState.Pressed && numGroundContacts > 0)
-                body.ApplyLinearImpulse(new Vector2(0f, -10f));
+                body.ApplyLinearImpulse(new Vector2(0f, -BodyJumpForce));
         }
 
         protected override void OnDraw(SpriteBatch spriteBatch)
