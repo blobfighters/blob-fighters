@@ -64,6 +64,7 @@
     <Compile Include="Objects\MaterialBrowser.cs" />
     <Compile Include="Scenes\MaterialTestScene.cs" />
     <Compile Include="InputManagement\Mappings.cs" />
+    <Compile Include="InputManagement\InputManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -125,6 +126,10 @@
     <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Images\Arm.png" />
+    <Content Include="Content\Images\Body.png" />
+    <Content Include="Content\Images\Face.png" />
+    <Content Include="Content\Images\Head.png" />
     <Content Include="Content\Images\Octane.png" />
   </ItemGroup>
   <ItemGroup>

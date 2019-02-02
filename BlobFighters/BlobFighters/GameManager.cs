@@ -5,6 +5,7 @@ using FarseerPhysics.DebugView;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoEngine.Core;
 
 namespace BlobFighters
 {
@@ -97,7 +98,7 @@ namespace BlobFighters
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            LoadScene(new TestPercentage());
+            LoadScene(new MaterialTestScene());
 
             base.Initialize();
         }
@@ -128,6 +129,8 @@ namespace BlobFighters
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            InputManager.Instance.Refresh();
 
             if (pendingScene != null)
             {

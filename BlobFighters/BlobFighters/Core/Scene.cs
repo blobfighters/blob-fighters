@@ -20,11 +20,6 @@ namespace BlobFighters.Core
         private const string DefaultGameObjectName = "(GameObject)";
 
         /// <summary>
-        /// The renderer used for debugging physics.
-        /// </summary>
-        private readonly DebugViewXNA debugView;
-
-        /// <summary>
         /// The map containing all game objects in the scene.
         /// </summary>
         private readonly Dictionary<string, GameObject> gameObjects;
@@ -38,6 +33,11 @@ namespace BlobFighters.Core
         /// The camera rendering the scene.
         /// </summary>
         protected Camera Camera { get; private set; }
+
+        /// <summary>
+        /// The renderer used for debugging physics.
+        /// </summary>
+        protected DebugViewXNA DebugView;
 
         /// <summary>
         /// The background color of the scene.
@@ -55,17 +55,18 @@ namespace BlobFighters.Core
         public Scene()
         {
             World = new World(Vector2.Zero);
-            debugView = new DebugViewXNA(World);
+            DebugView = new DebugViewXNA(World);
             gameObjects = new Dictionary<string, GameObject>();
             destroyedGameObjects = new List<GameObject>();
 
             Camera = new Camera();
             BackgroundColor = Color.White;
 
-            debugView.AppendFlags(DebugViewFlags.DebugPanel);
-            debugView.AppendFlags(DebugViewFlags.ContactPoints);
-            debugView.AppendFlags(DebugViewFlags.ContactNormals);
-            debugView.LoadContent(GameManager.Instance.GraphicsDevice, GameManager.Instance.Content);
+            DebugView.AppendFlags(DebugViewFlags.DebugPanel);
+            DebugView.AppendFlags(DebugViewFlags.ContactPoints);
+            DebugView.AppendFlags(DebugViewFlags.ContactNormals);
+            DebugView.LoadContent(GameManager.Instance.GraphicsDevice, GameManager.Instance.Content);
+            DebugView.Enabled = false;
         }
 
         /// <summary>
@@ -103,7 +104,7 @@ namespace BlobFighters.Core
         {
             GameManager.Instance.GraphicsDevice.Clear(BackgroundColor);
 
-            spriteBatch.Begin(transformMatrix: Camera.ViewMatrix);
+            spriteBatch.Begin(transformMatrix: Camera.ViewMatrix, blendState: BlendState.AlphaBlend);
 
             foreach (GameObject gameObject in gameObjects.Values)
                 gameObject.Draw(spriteBatch);
@@ -127,7 +128,7 @@ namespace BlobFighters.Core
 
             spriteBatch.Begin(transformMatrix: Camera.SimViewMatrix);
 
-            debugView.RenderDebugData(projection, Camera.SimViewMatrix);
+            DebugView.RenderDebugData(projection, Camera.SimViewMatrix);
 
             spriteBatch.End();
         }
@@ -144,7 +145,7 @@ namespace BlobFighters.Core
 
             gameObjects.Clear();
 
-            debugView.Dispose();
+            DebugView.Dispose();
 
             TextureManager.Instance.Release();
         }

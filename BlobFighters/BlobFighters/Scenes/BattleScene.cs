@@ -17,7 +17,12 @@ namespace BlobFighters.Scenes
 
         protected override void OnInit()
         {
-            blob = new Blob();
+            TextureManager.Instance.Load("Images/Body", "Body");
+            TextureManager.Instance.Load("Images/Face", "Face");
+            TextureManager.Instance.Load("Images/Head", "Head");
+            TextureManager.Instance.Load("Images/Arm", "Arm");
+
+            blob = new Blob(Color.Green, new Vector2(0f, -1f));
             ground = new Ground();
 
             Camera.Position += new Vector2(0f, -GameManager.Instance.GraphicsDevice.Viewport.Height * 0.5f);

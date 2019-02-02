@@ -43,11 +43,23 @@ namespace BlobFighters.Objects
         private const float ArmLength = 0.5f;
         private const float ArmWidth = 0.15f;
         private const float ArmStiffness = 7.5f;
+        private const float ArmAngle = 0.5f;
+
+        private const float ForearmScale = 0.75f;
+
+        private readonly Color color;
 
         private Body body;
         private Body head;
-        private readonly Body leftArm;
-        private readonly Body rightArm;
+        private readonly Body leftUpperarm;
+        private readonly Body leftForearm;
+        private readonly Body rightUpperarm;
+        private readonly Body rightForearm;
+
+        private readonly Texture2D bodyTexture;
+        private readonly Texture2D faceTexture;
+        private readonly Texture2D headTexture;
+        private readonly Texture2D armTexture;
 
         private List<Body> ownedBodies;
 
@@ -55,8 +67,15 @@ namespace BlobFighters.Objects
 
         private float bodyMovementForce;
 
-        public Blob() : base("Blob", new Vector2(0f, -1f), 0f)
+        public Blob(Color color, Vector2 position) : base($"{color} Blob", position, 0f)
         {
+            this.color = color;
+            
+            bodyTexture = TextureManager.Instance.Get("Body");
+            faceTexture = TextureManager.Instance.Get("Face");
+            headTexture = TextureManager.Instance.Get("Head");
+            armTexture = TextureManager.Instance.Get("Arm");
+
             ownedBodies = new List<Body>();
 
             numGroundContacts = 0;
@@ -64,8 +83,8 @@ namespace BlobFighters.Objects
 
             CreateBody();
             CreateHead();
-            leftArm = CreateArm(BodyWidth * 0.5f);
-            rightArm = CreateArm(-BodyWidth * 0.5f);
+            CreateArm(-BodyWidth * 0.5f, -ArmAngle, out leftUpperarm, out leftForearm);
+            CreateArm(BodyWidth * 0.5f, ArmAngle, out rightUpperarm, out rightForearm);
         }
 
         private void CreateBody()
@@ -98,16 +117,20 @@ namespace BlobFighters.Objects
             JointFactory.CreateWeldJoint(Scene.World, body, head, new Vector2(0f, -BodyHeight), new Vector2(0f, NeckPivot)).FrequencyHz = HeadStiffness;
         }
 
-        private Body CreateArm(float offset)
+        private Body CreateArm(float offset, float angle, out Body upperarm, out Body forearm)
         {
-            Body shoulder = CreateArmSegment(Position - new Vector2(offset, BodyHeight));
-            Body forearm = CreateArmSegment(Position - new Vector2(offset, BodyHeight - ArmLength));
+            upperarm = CreateArmSegment(Position - new Vector2(offset, BodyHeight));
+            forearm = CreateArmSegment(Position - new Vector2(offset, BodyHeight - ArmLength));
 
-            JointFactory.CreateWeldJoint(Scene.World, shoulder, forearm, new Vector2(0f, -ArmLength * 0.5f), new Vector2(0f, ArmLength * 0.5f)).FrequencyHz = ArmStiffness;
-            JointFactory.CreateWeldJoint(Scene.World, body, forearm, new Vector2(offset, -BodyHeight), new Vector2(0f, -ArmLength * 0.5f)).FrequencyHz = ArmStiffness;
+            WeldJoint elbow = JointFactory.CreateWeldJoint(Scene.World, forearm, upperarm, new Vector2(0f, -ArmLength * 0.5f), new Vector2(0f, ArmLength * 0.5f));
+            elbow.FrequencyHz = ArmStiffness;
 
-            shoulder.IgnoreCollisionWith(body);
-            shoulder.IgnoreCollisionWith(head);
+            WeldJoint shoulder = JointFactory.CreateWeldJoint(Scene.World, body, upperarm, new Vector2(-offset, -BodyHeight + NeckLength), new Vector2(0f, -ArmLength * 0.5f));
+            shoulder.FrequencyHz = ArmStiffness;
+            shoulder.ReferenceAngle = angle;
+
+            upperarm.IgnoreCollisionWith(body);
+            upperarm.IgnoreCollisionWith(head);
             forearm.IgnoreCollisionWith(body);
             forearm.IgnoreCollisionWith(head);
 
@@ -147,6 +170,12 @@ namespace BlobFighters.Objects
             bodyMovementForce = BodyAirMovementForce;
         }
 
+        private void DrawBodyPart(Body body, Texture2D texture, Color color, SpriteBatch spriteBatch, Vector2? scale = null, Vector2 offset = default(Vector2))
+        {
+            spriteBatch.Draw(texture, ConvertUnits.ToDisplayUnits(body.Position), null, color, body.Rotation, new Vector2(texture.Width * 0.5f, texture.Height * 0.5f) + ConvertUnits.ToDisplayUnits(offset),
+                scale ?? Vector2.One, SpriteEffects.None, 0f);
+        }
+
         protected override void OnUpdate(float deltaTime)
         {
             GamePadState state = GamePad.GetState(0);
@@ -160,6 +189,13 @@ namespace BlobFighters.Objects
 
         protected override void OnDraw(SpriteBatch spriteBatch)
         {
+            DrawBodyPart(body, bodyTexture, color, spriteBatch, null, new Vector2(0f, (BodyHeight - BodyWidth * 0.5f) * 0.5f));
+            DrawBodyPart(leftForearm, armTexture, color, spriteBatch, new Vector2(ForearmScale, 1f));
+            DrawBodyPart(leftUpperarm, armTexture, color, spriteBatch);
+            DrawBodyPart(rightForearm, armTexture, color, spriteBatch, new Vector2(ForearmScale, 1f));
+            DrawBodyPart(rightUpperarm, armTexture, color, spriteBatch);
+            DrawBodyPart(head, headTexture, color, spriteBatch);
+            DrawBodyPart(head, faceTexture, Color.White, spriteBatch);
         }
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
