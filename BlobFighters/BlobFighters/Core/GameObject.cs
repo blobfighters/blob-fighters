@@ -14,22 +14,22 @@ namespace BlobFighters.Core
 
         public Vector2 Position { get; set; }
 
-        public float Angle { get; set; }
+        public float Rotation { get; set; }
 
         public bool IsDestroyed { get; private set; }
 
-        private Scene scene;
+        protected Scene Scene { get; private set; }
 
-        public GameObject(string name = null, Vector2 position = default(Vector2), float angle = 0f)
+        public GameObject(string name = null, Vector2 position = default(Vector2), float rotation = 0f)
         {
             Name = name;
             Position = position;
-            Angle = angle;
+            Rotation = rotation;
             IsDestroyed = false;
 
-            scene = GameManager.Instance.ActiveScene;
+            Scene = GameManager.Instance.ActiveScene;
 
-            name = scene.RegisterGameObject(this);
+            Name = Scene.RegisterGameObject(this);
         }
 
         public void Update(float deltaTime)
@@ -45,7 +45,7 @@ namespace BlobFighters.Core
         public void Destroy()
         {
             OnDestroy();
-            scene.DestroyGameObject(this);
+            Scene.DestroyGameObject(this);
             IsDestroyed = true;
         }
 

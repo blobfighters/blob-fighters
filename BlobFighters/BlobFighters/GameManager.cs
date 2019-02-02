@@ -1,6 +1,7 @@
 ﻿using BlobFighters.Core;
 using BlobFighters.Scenes;
 using BlobFighters.Tests;
+using FarseerPhysics.DebugView;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -29,11 +30,12 @@ namespace BlobFighters
             }
         }
 
+        private readonly GraphicsDeviceManager graphics;
+
         public Scene ActiveScene { get; private set; }
 
         private Scene pendingScene;
 
-        private readonly GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
         public GameManager()
@@ -106,7 +108,7 @@ namespace BlobFighters
                 ActiveScene.Init();
             }
 
-            ActiveScene?.Update(1f / gameTime.ElapsedGameTime.Milliseconds);
+            ActiveScene?.Update(gameTime.ElapsedGameTime.Milliseconds * 0.001f);
 
             base.Update(gameTime);
         }

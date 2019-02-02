@@ -1,4 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FarseerPhysics;
+using FarseerPhysics.DebugView;
+using FarseerPhysics.Dynamics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -12,18 +15,29 @@ namespace BlobFighters.Core
     {
         private const string DefaultGameObjectName = "(GameObject)";
 
-        private Dictionary<string, GameObject> gameObjects;
+        private readonly DebugViewXNA debugView;
 
-        private List<GameObject> destroyedGameObjects;
+        private readonly Dictionary<string, GameObject> gameObjects;
+
+        private readonly List<GameObject> destroyedGameObjects;
 
         protected Color BackgroundColor { get; set; }
 
+        public World World { get; private set; }
+
         public Scene()
         {
+            World = new World(Vector2.Zero);
+            debugView = new DebugViewXNA(World);
             gameObjects = new Dictionary<string, GameObject>();
             destroyedGameObjects = new List<GameObject>();
 
             BackgroundColor = Color.White;
+
+            debugView.AppendFlags(DebugViewFlags.DebugPanel);
+            debugView.AppendFlags(DebugViewFlags.ContactPoints);
+            debugView.AppendFlags(DebugViewFlags.ContactNormals);
+            debugView.LoadContent(GameManager.Instance.GraphicsDevice, GameManager.Instance.Content);
         }
 
         public void Init()
@@ -33,8 +47,15 @@ namespace BlobFighters.Core
 
         public void Update(float deltaTime)
         {
+            World.Step(deltaTime);
+
             foreach (GameObject gameObject in gameObjects.Values)
                 gameObject.Update(deltaTime);
+
+            foreach (GameObject gameObject in destroyedGameObjects)
+                gameObjects.Remove(gameObject.Name);
+
+            destroyedGameObjects.Clear();
 
             OnUpdate(deltaTime);
         }
@@ -43,12 +64,18 @@ namespace BlobFighters.Core
         {
             GameManager.Instance.GraphicsDevice.Clear(BackgroundColor);
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.BackToFront);
 
             foreach (GameObject gameObject in gameObjects.Values)
                 gameObject.Draw(spriteBatch);
 
             OnDraw(spriteBatch);
+
+            Matrix projection = Matrix.CreateOrthographicOffCenter(0f,
+                ConvertUnits.ToSimUnits(GameManager.Instance.GraphicsDevice.Viewport.Width),
+                ConvertUnits.ToSimUnits(GameManager.Instance.GraphicsDevice.Viewport.Height), 0f, 0f, 1f);
+
+            debugView.RenderDebugData(ref projection);
 
             spriteBatch.End();
         }
@@ -61,6 +88,8 @@ namespace BlobFighters.Core
                 gameObject.Destroy();
 
             gameObjects.Clear();
+
+            debugView.Dispose();
         }
 
         public string RegisterGameObject(GameObject gameObject)
