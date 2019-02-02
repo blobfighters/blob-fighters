@@ -81,7 +81,7 @@ namespace MonoEngine.Core
         public Camera()
         {
             Origin = new Vector2(Viewport.Width * 0.5f, Viewport.Height * 0.5f);
-            Position = Vector2.Zero;
+            Position = -Origin;
             Rotation = 0f;
             Scale = Vector2.One;
         }
