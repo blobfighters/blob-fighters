@@ -25,7 +25,6 @@ namespace BlobFighters.Tests
 
         protected override void OnDestroy()
         {
-            TextureManager.Instance.Release();
         }
 
         protected override void OnDraw(SpriteBatch spriteBatch)

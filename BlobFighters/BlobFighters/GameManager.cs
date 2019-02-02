@@ -13,12 +13,24 @@ namespace BlobFighters
     /// </summary>
     public class GameManager : Game
     {
+        /// <summary>
+        /// The width of the game window.
+        /// </summary>
         private const int Width = 1920;
 
+        /// <summary>
+        /// The height of the game window.
+        /// </summary>
         private const int Height = 1080;
 
+        /// <summary>
+        /// The private singleton of this instance.
+        /// </summary>
         private static GameManager instance;
 
+        /// <summary>
+        /// The singleton of this instance.
+        /// </summary>
         public static GameManager Instance
         {
             get
@@ -30,15 +42,30 @@ namespace BlobFighters
             }
         }
 
+        /// <summary>
+        /// The <see cref="GraphicsDeviceManager"/> of this instance.
+        /// </summary>
         private readonly GraphicsDeviceManager graphics;
 
+        /// <summary>
+        /// The active running scene.
+        /// </summary>
         public Scene ActiveScene { get; private set; }
 
+        /// <summary>
+        /// The scene to become active in the next update.
+        /// </summary>
         private Scene pendingScene;
 
+        /// <summary>
+        /// The <see cref="SpriteBatch"/> used for rendering.
+        /// </summary>
         private SpriteBatch spriteBatch;
 
-        public GameManager()
+        /// <summary>
+        /// Initializes a new <see cref="GameManager"/> instance.
+        /// </summary>
+        private GameManager()
         {
             IsMouseVisible = true;
 
@@ -52,6 +79,10 @@ namespace BlobFighters
             Content.RootDirectory = "Content";
         }
 
+        /// <summary>
+        /// Loads the provided scene in the next frame.
+        /// </summary>
+        /// <param name="scene"></param>
         public void LoadScene(Scene scene)
         {
             pendingScene = scene;
