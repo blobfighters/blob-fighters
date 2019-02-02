@@ -97,7 +97,7 @@ namespace BlobFighters
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            LoadScene(new TestPercentage());
+            LoadScene(new BattleScene());
 
             base.Initialize();
         }
