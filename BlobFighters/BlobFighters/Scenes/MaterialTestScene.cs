@@ -2,7 +2,6 @@
 using BlobFighters.Core;
 using BlobFighters.Objects;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +20,11 @@ namespace BlobFighters.Scenes
         }
 
         protected override void OnDraw(SpriteBatch spriteBatch)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
             throw new NotImplementedException();
         }
