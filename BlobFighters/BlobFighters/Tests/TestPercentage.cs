@@ -12,33 +12,34 @@ namespace BlobFighters.Tests
 {
     class TestPercentage : Scene
     {
-        PercentageIndicator health;
+        PercentageIndicator healthP1, healthP2;
+        SpriteFont font;
 
         protected override void OnInit()
         {
-            BackgroundColor = Color.White;
-
-            health = new PercentageIndicator();
-            health.font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
+            BackgroundColor = Color.Black;
+            font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
+            healthP1 = new PercentageIndicator(font,new Vector2(220, 600));
+            healthP2 = new PercentageIndicator(font, new Vector2(900, 600));
         }
         protected override void OnDestroy()
         {
         }
  
         protected override void OnDraw(SpriteBatch spriteBatch)
-        { 
+        {
 
-            spriteBatch.DrawString(health.font, health.score+"%", new Vector2(0, 0), Color.Black);
 
         }
 
 
         protected override void OnUpdate(float deltaTime)
         {
-            if (health.score < 100)
-            {
-                health.score++;
-            }
+        }
+
+        protected override void OnDrawGUI(SpriteBatch spriteBatch)
+        {
+            
         }
     }
 }
