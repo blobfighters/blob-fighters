@@ -3,6 +3,7 @@ using FarseerPhysics.DebugView;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoEngine.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,11 @@ namespace BlobFighters.Core
         private readonly List<GameObject> destroyedGameObjects;
 
         /// <summary>
+        /// The camera rendering the scene.
+        /// </summary>
+        protected Camera Camera { get; private set; }
+
+        /// <summary>
         /// The background color of the scene.
         /// </summary>
         protected Color BackgroundColor { get; set; }
@@ -53,6 +59,7 @@ namespace BlobFighters.Core
             gameObjects = new Dictionary<string, GameObject>();
             destroyedGameObjects = new List<GameObject>();
 
+            Camera = new Camera();
             BackgroundColor = Color.White;
 
             debugView.AppendFlags(DebugViewFlags.DebugPanel);
@@ -96,7 +103,7 @@ namespace BlobFighters.Core
         {
             GameManager.Instance.GraphicsDevice.Clear(BackgroundColor);
 
-            spriteBatch.Begin(SpriteSortMode.BackToFront);
+            spriteBatch.Begin(transformMatrix: Camera.ViewMatrix);
 
             foreach (GameObject gameObject in gameObjects.Values)
                 gameObject.Draw(spriteBatch);
@@ -107,7 +114,11 @@ namespace BlobFighters.Core
                 ConvertUnits.ToSimUnits(GameManager.Instance.GraphicsDevice.Viewport.Width),
                 ConvertUnits.ToSimUnits(GameManager.Instance.GraphicsDevice.Viewport.Height), 0f, 0f, 1f);
 
-            debugView.RenderDebugData(ref projection);
+            spriteBatch.End();
+
+            spriteBatch.Begin(transformMatrix: Camera.SimViewMatrix);
+
+            debugView.RenderDebugData(projection, Camera.SimViewMatrix);
 
             spriteBatch.End();
         }

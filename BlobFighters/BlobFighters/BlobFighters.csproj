@@ -45,6 +45,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Core\Camera.cs" />
     <Compile Include="Core\GameObject.cs" />
     <Compile Include="Core\PhysicsGameObject.cs" />
     <Compile Include="Core\TextureManager.cs" />
