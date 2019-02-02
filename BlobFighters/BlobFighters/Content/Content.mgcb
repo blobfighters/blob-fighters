@@ -25,3 +25,10 @@
 /processorParam:TextureFormat=Color
 /build:Images/Octane.png
 
+#begin Percentage.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Percentage.spritefont
+

@@ -16,8 +16,7 @@ namespace BlobFighters.Tests
         protected override void OnInit()
         {
             BackgroundColor = Color.Black;
-
-            TextureManager.Instance.Load("Images/Octane", "Octane");
+            
 
             new TestGameObject();
             new TestPhysicsGameObject();
