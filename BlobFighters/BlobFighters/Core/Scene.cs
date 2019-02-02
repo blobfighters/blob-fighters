@@ -116,6 +116,15 @@ namespace BlobFighters.Core
 
             spriteBatch.End();
 
+            spriteBatch.Begin();
+
+            foreach (GameObject gameObject in gameObjects.Values)
+                gameObject.DrawGUI(spriteBatch);
+
+            OnDrawGUI(spriteBatch);
+
+            spriteBatch.End();
+
             spriteBatch.Begin(transformMatrix: Camera.SimViewMatrix);
 
             debugView.RenderDebugData(projection, Camera.SimViewMatrix);
@@ -202,6 +211,12 @@ namespace BlobFighters.Core
         /// </summary>
         /// <param name="spriteBatch"></param>
         protected abstract void OnDraw(SpriteBatch spriteBatch);
+
+        /// <summary>
+        /// Called when the GUI is drawn.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        protected abstract void OnDrawGUI(SpriteBatch spriteBatch);
 
         /// <summary>
         /// Called when the scene is destroyed.

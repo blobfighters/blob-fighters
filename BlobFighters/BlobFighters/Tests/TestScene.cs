@@ -35,5 +35,9 @@ namespace BlobFighters.Tests
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 new TestPhysicsGameObject();
         }
+
+        protected override void OnDrawGUI(SpriteBatch spriteBatch)
+        {
+        }
     }
 }

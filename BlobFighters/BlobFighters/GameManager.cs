@@ -16,12 +16,12 @@ namespace BlobFighters
         /// <summary>
         /// The width of the game window.
         /// </summary>
-        private const int Width = 1920;
+        private const int Width = 1280;
 
         /// <summary>
         /// The height of the game window.
         /// </summary>
-        private const int Height = 1080;
+        private const int Height = 720;
 
         /// <summary>
         /// The private singleton of this instance.
@@ -71,7 +71,7 @@ namespace BlobFighters
 
             graphics = new GraphicsDeviceManager(this)
             {
-                IsFullScreen = true,
+                //IsFullScreen = true,
                 PreferredBackBufferWidth = Width,
                 PreferredBackBufferHeight = Height
             };

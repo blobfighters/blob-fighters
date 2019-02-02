@@ -75,6 +75,15 @@ namespace BlobFighters.Core
         }
 
         /// <summary>
+        /// Called when the GUI is drawn.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        public void DrawGUI(SpriteBatch spriteBatch)
+        {
+            OnDrawGUI(spriteBatch);
+        }
+
+        /// <summary>
         /// Destroys the game object.
         /// </summary>
         public void Destroy()
@@ -95,6 +104,12 @@ namespace BlobFighters.Core
         /// </summary>
         /// <param name="spriteBatch"></param>
         protected abstract void OnDraw(SpriteBatch spriteBatch);
+
+        /// <summary>
+        /// Called when the GUI is drawn.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        protected abstract void OnDrawGUI(SpriteBatch spriteBatch);
 
         /// <summary>
         /// Called when the game object is destroyed.
