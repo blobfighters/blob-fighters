@@ -103,7 +103,7 @@ namespace BlobFighters.Core
         {
             GameManager.Instance.GraphicsDevice.Clear(BackgroundColor);
 
-            spriteBatch.Begin(transformMatrix: Camera.ViewMatrix);
+            spriteBatch.Begin(transformMatrix: Camera.ViewMatrix, blendState: BlendState.AlphaBlend);
 
             foreach (GameObject gameObject in gameObjects.Values)
                 gameObject.Draw(spriteBatch);

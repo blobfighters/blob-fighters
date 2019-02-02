@@ -61,6 +61,7 @@
     <Compile Include="Objects\MaterialBrowser.cs" />
     <Compile Include="Scenes\MaterialTestScene.cs" />
     <Compile Include="InputManagement\Mappings.cs" />
+    <Compile Include="InputManagement\InputManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
