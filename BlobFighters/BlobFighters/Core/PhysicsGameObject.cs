@@ -46,6 +46,14 @@ namespace BlobFighters.Core
         }
 
         /// <summary>
+        /// Called when the GUI is drawn.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        protected override void OnDrawGUI(SpriteBatch spriteBatch)
+        {
+        }
+
+        /// <summary>
         /// Called when the game object is destroyed.
         /// </summary>
         protected override void OnDestroy()

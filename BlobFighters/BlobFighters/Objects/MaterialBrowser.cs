@@ -50,6 +50,11 @@ namespace BlobFighters.Objects
 
         }
 
+        protected override void OnDrawGUI(SpriteBatch spriteBatch)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void OnUpdate(float deltaTime)
         {
         }
