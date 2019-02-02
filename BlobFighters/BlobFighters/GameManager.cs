@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BlobFighters.Core;
+using BlobFighters.Scenes;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -22,13 +24,24 @@ namespace BlobFighters
             }
         }
 
-        readonly GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        
+        public Scene ActiveScene { get; private set; }
+
+        private Scene pendingScene;
+
+        private readonly GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+
         public GameManager()
         {
+            IsMouseVisible = true;
+
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+        }
+
+        public void LoadScene(Scene scene)
+        {
+            pendingScene = scene;
         }
 
         /// <summary>
@@ -40,6 +53,7 @@ namespace BlobFighters
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            LoadScene(new TestScene());
 
             base.Initialize();
         }
@@ -50,10 +64,7 @@ namespace BlobFighters
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -62,7 +73,6 @@ namespace BlobFighters
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -75,7 +85,17 @@ namespace BlobFighters
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            if (pendingScene != null)
+            {
+                ActiveScene?.Destroy();
+
+                ActiveScene = pendingScene;
+                pendingScene = null;
+
+                ActiveScene.Init();
+            }
+
+            ActiveScene?.Update(1f / gameTime.ElapsedGameTime.Milliseconds);
 
             base.Update(gameTime);
         }
@@ -88,7 +108,7 @@ namespace BlobFighters
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            ActiveScene.Draw(spriteBatch);
 
             base.Draw(gameTime);
         }
