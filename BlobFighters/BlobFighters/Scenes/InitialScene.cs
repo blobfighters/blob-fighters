@@ -23,7 +23,7 @@ namespace BlobFighters.Scenes
         {
             TextureManager.Instance.Load("Images/Canvas", "Canvas");
             button = GameManager.Instance.Content.Load<Texture2D>("Images/startButton");
-            name = GameManager.Instance.Content.Load<Texture2D>("Images/Name");
+            name = GameManager.Instance.Content.Load<Texture2D>("Images/LineFighter");
 
             new Button(button, new Vector2((GameManager.Width - button.Width * ButtonScale) * 0.5f, (GameManager.Height - button.Height * ButtonScale) * 0.5f + 256), () =>
             {
