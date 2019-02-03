@@ -37,7 +37,7 @@ namespace BlobFighters.Scenes
 
             TextureManager.Instance.Load("Images/MaterialBorder", "MaterialBorder");
             Vector2 position = new Vector2(5f, 2f);
-            new MaterialBrowser(position);
+           //new MaterialBrowser(position);
         }
 
         protected override void OnUpdate(float deltaTime)
