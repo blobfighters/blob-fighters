@@ -14,6 +14,8 @@ namespace BlobFighters.Scenes
 {
     public class BattleScene : Scene
     {
+        private const float ScalePadding = 1000f;
+
         private Blob blob1;
         private Blob blob2;
         private Ground ground;
@@ -71,7 +73,7 @@ namespace BlobFighters.Scenes
             cameraTarget = (blob1.Position + blob2.Position) / 2f;
             Camera.Position = new Vector2(ConvertUnits.ToDisplayUnits(cameraTarget.X) - Camera.Origin.X, ConvertUnits.ToDisplayUnits(cameraTarget.Y) - Camera.Origin.Y * 2f);
 
-            //Camera.Scale = new Vector2(ConvertUnits.ToDisplayUnits())
+            Camera.Scale = new Vector2(Math.Min(0.5f, GameManager.Height / (ConvertUnits.ToDisplayUnits(blob1.Position - blob2.Position).Length() + ScalePadding)));
         }
         
         protected override void OnDraw(SpriteBatch spriteBatch)
