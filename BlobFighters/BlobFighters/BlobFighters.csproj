@@ -53,6 +53,7 @@
     <Compile Include="Objects\Blob.cs" />
     <Compile Include="Objects\BodyPart.cs" />
     <Compile Include="Objects\BodyPartType.cs" />
+    <Compile Include="Objects\Button.cs" />
     <Compile Include="Objects\Countdown.cs" />
     <Compile Include="Objects\IDrawable.cs" />
     <Compile Include="Objects\HealthIndicator.cs" />

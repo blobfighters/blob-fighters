@@ -11,6 +11,8 @@ namespace BlobFighters.InputManagement
 
         public const Buttons Draw = Buttons.RightTrigger;
 
+        public const Buttons Forfeit = Buttons.Y;
+
         public const Buttons ChangeMaterialRight = Buttons.RightShoulder;
 
         public const Buttons ChangeMaterialLeft = Buttons.LeftShoulder;

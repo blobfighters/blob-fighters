@@ -14,9 +14,23 @@ namespace BlobFighters.Scenes
 {
     class InitialScene : Scene
     {
+        private const float ButtonScale = 0.25f;
+
         private Texture2D name;
         private Texture2D button;
-        private int status = 0;
+
+        protected override void OnInit()
+        {
+            TextureManager.Instance.Load("Images/Canvas", "Canvas");
+            button = GameManager.Instance.Content.Load<Texture2D>("Images/startButton");
+            name = GameManager.Instance.Content.Load<Texture2D>("Images/Name");
+
+            new Button(button, new Vector2((GameManager.Width - button.Width * ButtonScale) * 0.5f, (GameManager.Height - button.Height * ButtonScale) * 0.5f + 256), () =>
+            {
+                GameManager.Instance.LoadScene(new BattleScene(BattleScene.StartingNumberOfLives, BattleScene.StartingNumberOfLives, "Best of 5!"));
+            }, ButtonScale);
+        }
+
         protected override void OnDestroy()
         {
         }
@@ -27,32 +41,11 @@ namespace BlobFighters.Scenes
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(name, new Vector2(420, 150), Color.White);
-            if (status == 0)
-            {
-                spriteBatch.Draw(button, new Vector2(560, 400), null, Color.White, 0f, Vector2.Zero, 0.3f, SpriteEffects.None, 0f);
-            }
-            else {
-                spriteBatch.Draw(button, new Vector2(560, 400), null, Color.DarkSeaGreen, 0f, Vector2.Zero, 0.3f, SpriteEffects.None, 0f);
-            }
-        }
-
-        protected override void OnInit()
-        {
-            TextureManager.Instance.Load("Images/Canvas", "Canvas");
-            button = GameManager.Instance.Content.Load<Texture2D>("Images/startButton");
-            name = GameManager.Instance.Content.Load<Texture2D>("Images/Name");
+            spriteBatch.Draw(name, new Vector2((GameManager.Width - name.Width) * 0.5f, (GameManager.Height - name.Height) * 0.5f - 256), Color.White);
         }
 
         protected override void OnUpdate(float deltaTime)
         {
-            int x = Mouse.GetState().X;
-            int y = Mouse.GetState().Y;
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && x> 565 && x<750 && y>407 && y<456)
-            {
-                status += 1;
-                if (status == 4) { GameManager.Instance.LoadScene(new BattleScene(3, 3, "Best of 5!")); }
-            }
         }
     }
 }

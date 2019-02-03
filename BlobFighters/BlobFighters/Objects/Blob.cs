@@ -105,6 +105,8 @@ namespace BlobFighters.Objects
 
         public float Health { get; set; }
 
+        public bool Forfeited { get; private set; }
+
         public float AttackStrength { get; private set; }
 
         public bool IsDead => Health <= 0f;
@@ -117,6 +119,7 @@ namespace BlobFighters.Objects
             Color = color;
             PlayerId = playerId;
             Health = MaxHealth;
+            Forfeited = false;
 
             cursorTexture = TextureManager.Instance.Get("Cursor");
             bodyTexture = TextureManager.Instance.Get("Body");
@@ -312,12 +315,18 @@ namespace BlobFighters.Objects
 
         protected override void OnUpdate(float deltaTime)
         {
+            Position = body.Position;
+            Rotation = body.Rotation;
+
             body.ApplyTorque(-body.Rotation * BodyRotationForce);
 
             if (!InputEnabled)
                 return;
 
             GamePadState state = GamePad.GetState(PlayerId);
+
+            if (state.IsButtonDown(Mappings.Forfeit))
+                Forfeited = true;
 
             timeUntilJump = Math.Max(timeUntilJump - deltaTime, 0f);
             AttackStrength = Math.Max(AttackStrength - deltaTime * AttackDecayRate, 0f);
@@ -345,9 +354,6 @@ namespace BlobFighters.Objects
                 leftShoulder.ReferenceAngle = RestingArmAngle;
                 rightShoulder.ReferenceAngle = -RestingArmAngle;
             }
-
-            Position = body.Position;
-            Rotation = body.Rotation;
 
             if (state.Triggers.Right > 0.5f)
             {

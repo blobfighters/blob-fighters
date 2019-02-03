@@ -16,7 +16,8 @@ namespace BlobFighters.Scenes
 {
     public class BattleScene : Scene
     {
-        private const int StartingNumberOfLives = 3;
+        public const int StartingNumberOfLives = 3;
+
         private const float ScalePadding = 1000f;
         private const float MaxHeightDifference = 50f;
         private const int MaxFramesImpaled = 30;
@@ -77,8 +78,8 @@ namespace BlobFighters.Scenes
             blueBlob = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             orangeBlob = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
             font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
-            healthP1 = new HealthIndicator(font, new Vector2(GameManager.Width - 1035, GameManager.Height - 125),blueBlob, blueLivesLeft);
-            healthP2 = new HealthIndicator(font, new Vector2(GameManager.Width - 365, GameManager.Height - 125),orangeBlob, orangeLivesLeft);
+            healthP2 = new HealthIndicator(font, new Vector2(256, GameManager.Height - 125), blueBlob, blueLivesLeft);
+            healthP1 = new HealthIndicator(font, new Vector2(GameManager.Width - 448, GameManager.Height - 125), orangeBlob, orangeLivesLeft);
             ground = new Ground();
             countdown = new Countdown(new Vector2(GameManager.Width * 0.5f, 128f), font, () =>
             {
@@ -133,7 +134,11 @@ namespace BlobFighters.Scenes
             else
                 orangeFramesImpaled = 0;
 
-            if (blueBlob.IsDead)
+            if (blueBlob.Forfeited)
+                GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue forfeited!"));
+            else if (orangeBlob.Forfeited)
+                GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft, orangeLivesLeft - 1, "Orange forfeited!"));
+            else if (blueBlob.IsDead)
                 GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue ran out of health!"));
             else if (orangeBlob.IsDead)
                 GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft, orangeLivesLeft - 1, "Orange ran out of health!"));
