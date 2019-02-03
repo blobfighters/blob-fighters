@@ -58,6 +58,9 @@ namespace BlobFighters.Objects
 
         private const float MaxAttackStrength = 1f;
         private const float AttackDecayRate = 5f;
+        private const float VerticalHitBias = 2f;
+        private const float BodyAttackScale = 1.5f;
+        private const float HeadAttackScale = 4f;
 
         private readonly Color color;
 
@@ -246,17 +249,17 @@ namespace BlobFighters.Objects
             switch (bodyPart.BodyPartType)
             {
                 case BodyPartType.Body:
-                    attackPower *= 1.5f;
+                    attackPower *= BodyAttackScale;
                     break;
                 case BodyPartType.Head:
-                    attackPower *= 4f;
+                    attackPower *= HeadAttackScale;
                     break;
             }
 
             AttackStrength = 0f;
 
             bodyPart.Blob.DamageRatio += attackPower;
-            bodyPart.Blob.body.ApplyLinearImpulse((bodyPart.Blob.Position - Position) * attackPower * bodyPart.Blob.DamageRatio);
+            bodyPart.Blob.body.ApplyLinearImpulse(((bodyPart.Blob.Position - Position) - Vector2.UnitY * VerticalHitBias) * attackPower * bodyPart.Blob.DamageRatio);
 
             return false;
         }
