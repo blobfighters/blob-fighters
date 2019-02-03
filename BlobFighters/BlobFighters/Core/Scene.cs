@@ -27,7 +27,7 @@ namespace BlobFighters.Core
         /// <summary>
         /// A list containing all destroyed game objects from the last frame.
         /// </summary>
-        private readonly List<GameObject> addedGameObjects;
+        private readonly Dictionary<string, GameObject> addedGameObjects;
 
         /// <summary>
         /// A list containing all destroyed game objects from the last frame.
@@ -67,7 +67,7 @@ namespace BlobFighters.Core
             World = new World(Vector2.Zero);
             DebugView = new DebugViewXNA(World);
             gameObjects = new Dictionary<string, GameObject>();
-            addedGameObjects = new List<GameObject>();
+            addedGameObjects = new Dictionary<string, GameObject>();
             destroyedGameObjects = new List<GameObject>();
 
             Camera = new Camera();
@@ -94,9 +94,8 @@ namespace BlobFighters.Core
         /// <param name="deltaTime"></param>
         public void Update(float deltaTime)
         {
-            foreach (GameObject gameObject in addedGameObjects)
-                if (!gameObjects.ContainsKey(gameObject.Name))
-                    gameObjects.Add(gameObject.Name, gameObject);
+            foreach (GameObject gameObject in addedGameObjects.Values)
+                gameObjects.Add(gameObject.Name, gameObject);
 
             addedGameObjects.Clear();
 
@@ -193,14 +192,14 @@ namespace BlobFighters.Core
 
             string name = gameObject.Name ?? DefaultGameObjectName;
 
-            if (gameObjects.ContainsKey(name))
+            if (gameObjects.ContainsKey(name) || addedGameObjects.ContainsKey(name))
             {
                 string newName;
-                for (int i = 0; gameObjects.ContainsKey(newName = name + i); i++) ;
+                for (int i = 0; gameObjects.ContainsKey(newName = name + i) || addedGameObjects.ContainsKey(newName); i++) ;
                 name = newName;
             }
 
-            addedGameObjects.Add(gameObject);
+            addedGameObjects.Add(name, gameObject);
 
             return name;
         }

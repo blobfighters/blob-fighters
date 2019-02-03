@@ -70,7 +70,8 @@ namespace BlobFighters.Scenes
             cameraCurrent = Camera.Position;
             cameraTarget = (blob1.Position + blob2.Position) / 2f;
             Camera.Position = new Vector2(ConvertUnits.ToDisplayUnits(cameraTarget.X) - Camera.Origin.X, ConvertUnits.ToDisplayUnits(cameraTarget.Y) - Camera.Origin.Y * 2f);
-            //Camera.Scale = new Vector2(1f + Math.Min(1f, GameManager.Instance.GraphicsDevice.Viewport.Width / ConvertUnits.ToDisplayUnits((blob1.Position - blob2.Position).Length()) * 3f)) * 0.25f;
+
+            //Camera.Scale = new Vector2(ConvertUnits.ToDisplayUnits())
         }
         
         protected override void OnDraw(SpriteBatch spriteBatch)
