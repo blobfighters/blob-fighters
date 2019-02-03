@@ -9,6 +9,7 @@ using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoEngine.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace BlobFighters.Objects
 
         private const float BodyRotationForce = 40f;
 
-        private const float BodyJumpForce = 10f;
+        private const float BodyJumpForce = 25f;
 
         private const float NeckLength = 0.15f;
         private const float NeckPivot = 0.25f;
@@ -52,6 +53,14 @@ namespace BlobFighters.Objects
         private const float ForearmScale = 0.75f;
 
         private const float Deadzone = 0.25f;
+
+        private const float JumpCooldown = 0.25f;
+
+        private const float MaxAttackStrength = 1f;
+        private const float AttackDecayRate = 5f;
+        private const float VerticalHitBias = 2f;
+        private const float BodyAttackScale = 1.5f;
+        private const float HeadAttackScale = 4f;
 
         private readonly Color color;
 
@@ -78,6 +87,12 @@ namespace BlobFighters.Objects
 
         private float bodyMovementForce;
 
+        private float timeUntilJump;
+
+        public float DamageRatio { get; set; }
+
+        public float AttackStrength { get; private set; }
+
         public Blob(Color color, int playerId, Vector2 position) : base($"{color} Blob", position, 0f)
         {
             this.color = color;
@@ -91,20 +106,50 @@ namespace BlobFighters.Objects
             ownedBodies = new List<Body>();
 
             numGroundContacts = 0;
-            bodyMovementForce = BodyAirMovementForce;
             direction = 1;
+
+            bodyMovementForce = BodyAirMovementForce;
+            DamageRatio = 0f;
+
+            timeUntilJump = 0f;
 
             CreateBody();
             CreateHead();
             CreateArm(ArmSpacing, RestingArmAngle, out leftUpperarm, out leftForearm, out leftShoulder);
             CreateArm(-ArmSpacing, -RestingArmAngle, out rightUpperarm, out rightForearm, out rightShoulder);
 
-            leftUpperarm.IgnoreCollisionWith(rightForearm);
-            rightUpperarm.IgnoreCollisionWith(leftForearm);
+            InputManager.Instance.OnButtonStateChanged += ButtonStateChanged;
+        }
+
+        private void ButtonStateChanged(int playerId, Buttons button, ButtonState state)
+        {
+            if (playerId != this.playerId)
+                return;
+
+            if (state == ButtonState.Pressed)
+            {
+                switch (button)
+                {
+                    case Mappings.Jump:
+                        if (timeUntilJump == 0f && numGroundContacts > 0)
+                        {
+                            body.ApplyLinearImpulse(new Vector2(0f, -BodyJumpForce));
+                            timeUntilJump = JumpCooldown;
+                        }
+                        break;
+                    case Mappings.Attack:
+                        if (AttackStrength == 0f)
+                            AttackStrength = 1f;
+
+                        break;
+                }
+            }
         }
 
         private void CreateBody()
         {
+            BodyPart bp = new BodyPart(BodyPartType.Body, this);
+
             body = new Body(Scene.World, Position, 0f, BodyType.Dynamic)
             {
                 AngularDamping = BodyAngularDamping,
@@ -117,9 +162,9 @@ namespace BlobFighters.Objects
                 new Vector2(BodyWidth * 0.5f, -BodyHeight),
                 new Vector2(BodyWidth * 0.5f, 0f),
                 new Vector2(-BodyWidth * 0.5f, 0f),
-            }), 1f));
+            }), 1f), bp);
 
-            Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity));
+            Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity), bp);
             baseFixture.Friction = BodyFriction;
             baseFixture.OnCollision = OnBaseCollision;
             baseFixture.OnSeparation = OnBaseSeparation;
@@ -128,7 +173,7 @@ namespace BlobFighters.Objects
         private void CreateHead()
         {
             head = new Body(Scene.World, Position - new Vector2(0f, BodyHeight + NeckLength), 0f, BodyType.Dynamic);
-            head.CreateFixture(new CircleShape(BodyWidth * 0.5f, HeadDensity));
+            head.CreateFixture(new CircleShape(BodyWidth * 0.5f, HeadDensity), new BodyPart(BodyPartType.Head, this));
 
             JointFactory.CreateWeldJoint(Scene.World, body, head, new Vector2(0f, -BodyHeight), new Vector2(0f, NeckPivot)).FrequencyHz = HeadStiffness;
         }
@@ -150,6 +195,8 @@ namespace BlobFighters.Objects
             forearm.IgnoreCollisionWith(body);
             forearm.IgnoreCollisionWith(head);
 
+            forearm.OnCollision += OnArmCollision;
+
             return forearm;
         }
 
@@ -163,7 +210,7 @@ namespace BlobFighters.Objects
                 new Vector2(ArmWidth * 0.5f, -ArmLength * 0.5f),
                 new Vector2(ArmWidth * 0.5f, ArmLength * 0.5f),
                 new Vector2(-ArmWidth * 0.5f, ArmLength * 0.5f)
-            }), 0.5f));
+            }), 0.5f), new BodyPart(BodyPartType.Arm, this));
 
             return segment;
         }
@@ -186,9 +233,41 @@ namespace BlobFighters.Objects
             bodyMovementForce = BodyAirMovementForce;
         }
 
+        private bool OnArmCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
+        {
+            if (!(fixtureB.UserData is BodyPart bodyPart))
+                return true;
+
+            if (bodyPart.Blob == this)
+                return false;
+
+            if (AttackStrength == 0f)
+                return true;
+
+            float attackPower = AttackStrength * MaxAttackStrength;
+
+            switch (bodyPart.BodyPartType)
+            {
+                case BodyPartType.Body:
+                    attackPower *= BodyAttackScale;
+                    break;
+                case BodyPartType.Head:
+                    attackPower *= HeadAttackScale;
+                    break;
+            }
+
+            AttackStrength = 0f;
+
+            bodyPart.Blob.DamageRatio += attackPower;
+            bodyPart.Blob.body.ApplyLinearImpulse(((bodyPart.Blob.Position - Position) - Vector2.UnitY * VerticalHitBias) * attackPower * bodyPart.Blob.DamageRatio);
+
+            return false;
+        }
+
         private void DrawBodyPart(Body body, Texture2D texture, Color color, SpriteBatch spriteBatch, Vector2? scale = null, Vector2 offset = default(Vector2))
         {
-            spriteBatch.Draw(texture, ConvertUnits.ToDisplayUnits(body.Position), null, color, body.Rotation, new Vector2(texture.Width * 0.5f, texture.Height * 0.5f) + ConvertUnits.ToDisplayUnits(offset),
+            spriteBatch.Draw(texture, ConvertUnits.ToDisplayUnits(body.Position), null, color, body.Rotation,
+                new Vector2(texture.Width * 0.5f, texture.Height * 0.5f) + ConvertUnits.ToDisplayUnits(offset),
                 scale ?? Vector2.One, SpriteEffects.None, 0f);
         }
 
@@ -213,6 +292,9 @@ namespace BlobFighters.Objects
         {
             GamePadState state = GamePad.GetState(playerId);
 
+            timeUntilJump = Math.Max(timeUntilJump - deltaTime, 0f);
+            AttackStrength = Math.Max(AttackStrength - deltaTime * AttackDecayRate, 0f);
+
             if (Math.Abs(state.ThumbSticks.Left.X) >= Deadzone)
             {
                 if (state.ThumbSticks.Left.X > 0)
@@ -225,10 +307,7 @@ namespace BlobFighters.Objects
 
             body.ApplyTorque(-body.Rotation * BodyRotationForce);
 
-            if (state.IsButtonDown(Mappings.Jump) && numGroundContacts > 0)
-                body.ApplyLinearImpulse(new Vector2(0f, -BodyJumpForce));
-
-            if (state.IsButtonDown(Mappings.Attack))
+            if (AttackStrength > 0)
             {
                 leftShoulder.ReferenceAngle = PunchingArmAngle * direction;
                 rightShoulder.ReferenceAngle = PunchingArmAngle * direction;
@@ -238,6 +317,9 @@ namespace BlobFighters.Objects
                 leftShoulder.ReferenceAngle = RestingArmAngle;
                 rightShoulder.ReferenceAngle = -RestingArmAngle;
             }
+
+            Position = body.Position;
+            Rotation = body.Rotation;
         }
 
         protected override void OnDraw(SpriteBatch spriteBatch)

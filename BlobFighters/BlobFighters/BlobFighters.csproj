@@ -51,6 +51,8 @@
     <Compile Include="Core\TextureManager.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="Objects\Blob.cs" />
+    <Compile Include="Objects\BodyPart.cs" />
+    <Compile Include="Objects\BodyPartType.cs" />
     <Compile Include="Objects\PercentageIndicator.cs" />
     <Compile Include="Objects\Ground.cs" />
     <Compile Include="Program.cs" />

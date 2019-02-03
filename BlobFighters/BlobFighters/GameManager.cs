@@ -98,7 +98,7 @@ namespace BlobFighters
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            LoadScene(new MaterialTestScene());
+            LoadScene(new BattleScene());
 
             base.Initialize();
         }
