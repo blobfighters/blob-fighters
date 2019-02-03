@@ -72,7 +72,7 @@ namespace BlobFighters
 
             graphics = new GraphicsDeviceManager(this)
             {
-                //IsFullScreen = true,
+                IsFullScreen = true,
                 PreferredBackBufferWidth = Width,
                 PreferredBackBufferHeight = Height
             };
@@ -98,7 +98,7 @@ namespace BlobFighters
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            LoadScene(new MaterialTestScene());
+            LoadScene(new BattleScene());
 
             base.Initialize();
         }

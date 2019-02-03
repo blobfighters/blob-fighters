@@ -26,7 +26,6 @@ namespace BlobFighters.Scenes
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-            throw new NotImplementedException();
         }
 
         protected override void OnInit()
