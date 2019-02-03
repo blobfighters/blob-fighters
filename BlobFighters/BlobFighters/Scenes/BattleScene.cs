@@ -23,6 +23,9 @@ namespace BlobFighters.Scenes
         private Vector2 cameraCurrent;
         private Vector2 cameraTarget;
 
+        private Vector2 materialsPosition1;
+        private Vector2 materialsPosition2;
+
         protected override void OnInit()
         {
             TextureManager.Instance.Load("Images/Cursor", "Cursor");
@@ -30,6 +33,14 @@ namespace BlobFighters.Scenes
             TextureManager.Instance.Load("Images/Face", "Face");
             TextureManager.Instance.Load("Images/Head", "Head");
             TextureManager.Instance.Load("Images/Arm", "Arm");
+
+            TextureManager.Instance.Load("Images/Terrain", "Terrain");
+            TextureManager.Instance.Load("Images/Wood", "Wood");
+            TextureManager.Instance.Load("Images/GunPowder", "GunPowder");
+
+            TextureManager.Instance.Load("Images/MaterialBorder", "MaterialBorder");
+
+            //BackgroundTexture = TextureManager.Instance.Get("Canvas");
 
             blob1 = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             blob2 = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
@@ -40,6 +51,11 @@ namespace BlobFighters.Scenes
 
             Camera.Position += new Vector2(0f, -GameManager.Instance.GraphicsDevice.Viewport.Height * 0.5f);
             Camera.Scale = new Vector2(0.5f);
+
+            materialsPosition1 = new Vector2(155, 700);
+            new MaterialBrowser(materialsPosition1, blob1.playerId);
+            materialsPosition2 = new Vector2(840, 700);
+            new MaterialBrowser(materialsPosition2, blob2.playerId);
 
             World.Gravity = new Vector2(0f, 30f);
         }
@@ -65,6 +81,7 @@ namespace BlobFighters.Scenes
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
+
         }
 
         protected override void OnDestroy()
