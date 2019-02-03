@@ -45,16 +45,16 @@ namespace BlobFighters.Scenes
             blob1 = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             blob2 = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
             font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
-            healthP1 = new PercentageIndicator(font, new Vector2(220, 600),blob1);
-            healthP2 = new PercentageIndicator(font, new Vector2(900, 600),blob2);
+            healthP1 = new PercentageIndicator(font, new Vector2(GameManager.Instance.GraphicsDevice.Viewport.Width - 1060, GameManager.Instance.GraphicsDevice.Viewport.Height - 125),blob1);
+            healthP2 = new PercentageIndicator(font, new Vector2(GameManager.Instance.GraphicsDevice.Viewport.Width - 400, GameManager.Instance.GraphicsDevice.Viewport.Height - 125),blob2);
             ground = new Ground();
 
             Camera.Position += new Vector2(0f, -GameManager.Instance.GraphicsDevice.Viewport.Height * 0.5f);
             Camera.Scale = new Vector2(0.5f);
 
-            materialsPosition1 = new Vector2(155, 700);
+            materialsPosition1 = new Vector2(GameManager.Instance.GraphicsDevice.Viewport.Width - 1125, GameManager.Instance.GraphicsDevice.Viewport.Height - 30);
             new MaterialBrowser(materialsPosition1, blob1.PlayerId);
-            materialsPosition2 = new Vector2(840, 700);
+            materialsPosition2 = new Vector2(GameManager.Instance.GraphicsDevice.Viewport.Width - 600, GameManager.Instance.GraphicsDevice.Viewport.Height - 250);
             new MaterialBrowser(materialsPosition2, blob2.PlayerId);
 
             World.Gravity = new Vector2(0f, 30f);
