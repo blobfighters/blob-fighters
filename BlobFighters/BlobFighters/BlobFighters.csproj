@@ -59,6 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Scene.cs" />
     <Compile Include="Scenes\BattleScene.cs" />
+    <Compile Include="Scenes\InitialScene.cs" />
     <Compile Include="Tests\TestGameObject.cs" />
     <Compile Include="Tests\TestPercentage.cs" />
     <Compile Include="Tests\TestPhysicsGameObject.cs" />
