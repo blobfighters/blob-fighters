@@ -13,7 +13,7 @@ namespace BlobFighters.Tests
 {
     class TestPercentage : Scene
     {
-        PercentageIndicator healthP1, healthP2;
+        HealthIndicator healthP1, healthP2;
         SpriteFont font;
         Vector2 mousePos;
         Texture2D wood;

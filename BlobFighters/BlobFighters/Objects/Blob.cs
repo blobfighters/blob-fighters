@@ -56,7 +56,7 @@ namespace BlobFighters.Objects
 
         private const float JumpCooldown = 0.25f;
 
-        private const float MaxAttackStrength = 1f;
+        private const float MaxAttackStrength = 20f;
         private const float AttackDecayRate = 5f;
         private const float VerticalHitBias = 2f;
         private const float BodyAttackScale = 1.5f;
@@ -64,10 +64,12 @@ namespace BlobFighters.Objects
 
         private const float DrawSpeed = 10f;
         private const float MaxDrawDistance = 2.5f;
+        private const float MaxHealth = 100f;
+        private const float HealthDamageFactor = 0.5f;
 
         private readonly Vector2 cursorOffset = new Vector2(BodyWidth, BodyWidth * 0.5f);
 
-        private readonly Color color;
+        public Color Color { get; private set; }
 
         private Body body;
         private Body head;
@@ -97,18 +99,24 @@ namespace BlobFighters.Objects
 
         private float timeUntilJump;
 
+        public bool InputEnabled { get; set; }
+
         public int PlayerId { get; private set; }
 
-        public float DamageRatio { get; set; }
+        public float Health { get; set; }
 
         public float AttackStrength { get; private set; }
+
+        public bool IsDead => Health <= 0f;
 
         public Vector2 AbsoluteCursorPosition => Position + cursorOffset * new Vector2(-direction, 1f) + cursorPosition;
 
         public Blob(Color color, int playerId, Vector2 position) : base($"{color} Blob", position, 0f)
         {
-            this.color = color;
-            this.PlayerId = playerId;
+            InputEnabled = false;
+            Color = color;
+            PlayerId = playerId;
+            Health = MaxHealth;
 
             cursorTexture = TextureManager.Instance.Get("Cursor");
             bodyTexture = TextureManager.Instance.Get("Body");
@@ -124,7 +132,6 @@ namespace BlobFighters.Objects
             direction = 1;
 
             bodyMovementForce = BodyAirMovementForce;
-            DamageRatio = 0f;
 
             timeUntilJump = 0f;
 
@@ -138,7 +145,7 @@ namespace BlobFighters.Objects
 
         private void ButtonStateChanged(int playerId, Buttons button, ButtonState state)
         {
-            if (playerId != this.PlayerId)
+            if (!InputEnabled || playerId != PlayerId)
                 return;
 
             if (state == ButtonState.Pressed)
@@ -273,10 +280,10 @@ namespace BlobFighters.Objects
 
             AttackStrength = 0f;
 
-            bodyPart.Blob.DamageRatio += attackPower;
-            bodyPart.Blob.body.ApplyLinearImpulse(((bodyPart.Blob.Position - Position) - Vector2.UnitY * VerticalHitBias) * attackPower * bodyPart.Blob.DamageRatio);
+            bodyPart.Blob.Health = Math.Max(0f, bodyPart.Blob.Health - attackPower * HealthDamageFactor);
+            bodyPart.Blob.body.ApplyLinearImpulse(((bodyPart.Blob.Position - Position) - Vector2.UnitY * VerticalHitBias) * attackPower * (1 - bodyPart.Blob.Health / MaxHealth));
 
-            return false;
+            return true;
         }
 
         private void DrawBodyPart(Body body, Texture2D texture, Color color, SpriteBatch spriteBatch, Vector2? scale = null, Vector2 offset = default(Vector2))
@@ -288,23 +295,28 @@ namespace BlobFighters.Objects
 
         private void DrawBody(SpriteBatch spriteBatch)
         {
-            DrawBodyPart(body, bodyTexture, color, spriteBatch, null, new Vector2(0f, (BodyHeight - BodyWidth * 0.5f) * 0.5f));
+            DrawBodyPart(body, bodyTexture, Color, spriteBatch, null, new Vector2(0f, (BodyHeight - BodyWidth * 0.5f) * 0.5f));
         }
 
         private void DrawLeftArm(SpriteBatch spriteBatch)
         {
-            DrawBodyPart(leftForearm, armTexture, color, spriteBatch, new Vector2(ForearmScale, 1f));
-            DrawBodyPart(leftUpperarm, armTexture, color, spriteBatch);
+            DrawBodyPart(leftForearm, armTexture, Color, spriteBatch, new Vector2(ForearmScale, 1f));
+            DrawBodyPart(leftUpperarm, armTexture, Color, spriteBatch);
         }
 
         private void DrawRightArm(SpriteBatch spriteBatch)
         {
-            DrawBodyPart(rightForearm, armTexture, color, spriteBatch, new Vector2(ForearmScale, 1f));
-            DrawBodyPart(rightUpperarm, armTexture, color, spriteBatch);
+            DrawBodyPart(rightForearm, armTexture, Color, spriteBatch, new Vector2(ForearmScale, 1f));
+            DrawBodyPart(rightUpperarm, armTexture, Color, spriteBatch);
         }
 
         protected override void OnUpdate(float deltaTime)
         {
+            body.ApplyTorque(-body.Rotation * BodyRotationForce);
+
+            if (!InputEnabled)
+                return;
+
             GamePadState state = GamePad.GetState(PlayerId);
 
             timeUntilJump = Math.Max(timeUntilJump - deltaTime, 0f);
@@ -322,8 +334,6 @@ namespace BlobFighters.Objects
 
                 body.ApplyForce(new Vector2(state.ThumbSticks.Left.X * bodyMovementForce, 0f));
             }
-
-            body.ApplyTorque(-body.Rotation * BodyRotationForce);
 
             if (AttackStrength > 0)
             {
@@ -381,10 +391,11 @@ namespace BlobFighters.Objects
                 DrawRightArm(spriteBatch);
             }
 
-            DrawBodyPart(head, headTexture, color, spriteBatch);
+            DrawBodyPart(head, headTexture, Color, spriteBatch);
             DrawBodyPart(head, faceTexture, Color.White, spriteBatch, null, new Vector2(direction * 0.1f, 0f));
 
-            spriteBatch.Draw(cursorTexture, ConvertUnits.ToDisplayUnits(AbsoluteCursorPosition), Color.White);
+            spriteBatch.Draw(cursorTexture, ConvertUnits.ToDisplayUnits(AbsoluteCursorPosition), null, Color.White, 0f,
+                new Vector2(cursorTexture.Width, cursorTexture.Height) * 0.5f, 1f, SpriteEffects.None, 0f);
         }
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)

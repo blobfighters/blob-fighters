@@ -17,12 +17,12 @@ namespace BlobFighters
         /// <summary>
         /// The width of the game window.
         /// </summary>
-        public const int Width = 1280;
+        public const int Width = 1920;
 
         /// <summary>
         /// The height of the game window.
         /// </summary>
-        public const int Height = 720;
+        public const int Height = 1080;
 
         /// <summary>
         /// The private singleton of this instance.
@@ -98,7 +98,7 @@ namespace BlobFighters
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            LoadScene(new BattleScene());
+            LoadScene(new InitialScene());
 
             base.Initialize();
         }

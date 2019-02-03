@@ -51,7 +51,7 @@ namespace BlobFighters.Scenes
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && x> 565 && x<750 && y>407 && y<456)
             {
                 status += 1;
-                if (status == 4) { GameManager.Instance.LoadScene(new BattleScene()); }
+                if (status == 4) { GameManager.Instance.LoadScene(new BattleScene(3, 3, "Best of 5!")); }
             }
         }
     }

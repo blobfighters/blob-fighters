@@ -1,6 +1,8 @@
-﻿using BlobFighters.Core; 
+﻿using BlobFighters.Core;
 using BlobFighters.Objects;
 using FarseerPhysics;
+using FarseerPhysics.Dynamics;
+using FarseerPhysics.Dynamics.Contacts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -14,19 +16,55 @@ namespace BlobFighters.Scenes
 {
     public class BattleScene : Scene
     {
+        private const int StartingNumberOfLives = 3;
         private const float ScalePadding = 1000f;
+        private const float MaxHeightDifference = 50f;
+        private const int MaxFramesImpaled = 30;
+        private const int MaxCollisionsPerFrame = 30;
 
-        private Blob blob1;
-        private Blob blob2;
+        private Blob blueBlob;
+        private Blob orangeBlob;
         private Ground ground;
-        PercentageIndicator healthP1, healthP2;
+        private Countdown countdown;
+
+        HealthIndicator healthP1, healthP2;
         SpriteFont font;
 
         private Vector2 cameraCurrent;
         private Vector2 cameraTarget;
 
-        //private Vector2 materialsPosition1;
-        //private Vector2 materialsPosition2;
+        private readonly int blueLivesLeft;
+        private readonly int orangeLivesLeft;
+        private readonly string initialMessage;
+
+        private int blueFrameContacts;
+        private int blueFramesImpaled;
+
+        private int orangeContacts;
+        private int orangeFramesImpaled;
+
+        public BattleScene(int blueLives, int orangeLives, string initialMessage)
+        {
+            if (blueLives <= 0)
+            {
+                this.initialMessage = "Orange won! Let's play again!";
+                blueLivesLeft = orangeLivesLeft = StartingNumberOfLives;
+            }
+            else if (orangeLives <= 0)
+            {
+                this.initialMessage = "Blue won! Let's play again!";
+                blueLivesLeft = orangeLivesLeft = StartingNumberOfLives;
+            }
+            else
+            {
+                this.initialMessage = initialMessage;
+                blueLivesLeft = blueLives;
+                orangeLivesLeft = orangeLives;
+            }
+
+            blueFramesImpaled = 0;
+            orangeFramesImpaled = 0;
+        }
 
         protected override void OnInit()
         {
@@ -36,46 +74,83 @@ namespace BlobFighters.Scenes
             TextureManager.Instance.Load("Images/Head", "Head");
             TextureManager.Instance.Load("Images/Arm", "Arm");
 
-            //TextureManager.Instance.Load("Images/Terrain", "Terrain");
-            //TextureManager.Instance.Load("Images/Wood", "Wood");
-            //TextureManager.Instance.Load("Images/GunPowder", "GunPowder");
-
-            //TextureManager.Instance.Load("Images/MaterialBorder", "MaterialBorder");
-
-            //BackgroundTexture = TextureManager.Instance.Get("Canvas");
-
-            blob1 = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
-            blob2 = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
+            blueBlob = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
+            orangeBlob = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
             font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
-            healthP1 = new PercentageIndicator(font, new Vector2(GameManager.Width - 1035, GameManager.Height - 125),blob1);
-            healthP2 = new PercentageIndicator(font, new Vector2(GameManager.Width - 365, GameManager.Height - 125),blob2);
+            healthP1 = new HealthIndicator(font, new Vector2(GameManager.Width - 1035, GameManager.Height - 125),blueBlob, blueLivesLeft);
+            healthP2 = new HealthIndicator(font, new Vector2(GameManager.Width - 365, GameManager.Height - 125),orangeBlob, orangeLivesLeft);
             ground = new Ground();
+            countdown = new Countdown(new Vector2(GameManager.Width * 0.5f, 128f), font, () =>
+            {
+                blueBlob.InputEnabled = orangeBlob.InputEnabled = true;
+            }, initialMessage, "3", "2", "1", "Go!");
 
             Camera.Position += new Vector2(0f, -GameManager.Instance.GraphicsDevice.Viewport.Height * 0.5f);
             Camera.Scale = new Vector2(0.5f);
 
-            /*
-            materialsPosition1 = new Vector2(GameManager.Width - 1100, GameManager.Height - 30);
-            new MaterialBrowser(materialsPosition1, blob1.PlayerId);
-            materialsPosition2 = new Vector2(GameManager.Width - 430, GameManager.Height - 30);
-            new MaterialBrowser(materialsPosition2, blob2.PlayerId);
-            */
-
             World.Gravity = new Vector2(0f, 30f);
+            World.ContactManager.BeginContact = BeginContact;
+        }
+
+        private bool BeginContact(Contact contact)
+        {
+            AddContact(contact.FixtureA);
+            AddContact(contact.FixtureB);
+
+            return true;
+        }
+
+        private void AddContact(Fixture fixture)
+        {
+            if (!(fixture.UserData is BodyPart bodyPart))
+                return;
+
+            if (bodyPart.Blob == blueBlob)
+                blueFrameContacts++;
+            else if (bodyPart.Blob == orangeBlob)
+                orangeContacts++;
         }
 
         protected override void OnUpdate(float deltaTime)
         {
             GamePadState state = GamePad.GetState(0);
 
-            if (state.Buttons.Start == ButtonState.Pressed)
-                GameManager.Instance.LoadScene(new BattleScene());
-                
             cameraCurrent = Camera.Position;
-            cameraTarget = (blob1.Position + blob2.Position) / 2f;
+            cameraTarget = (blueBlob.Position + orangeBlob.Position) / 2f;
             Camera.Position = new Vector2(ConvertUnits.ToDisplayUnits(cameraTarget.X) - Camera.Origin.X, ConvertUnits.ToDisplayUnits(cameraTarget.Y) - Camera.Origin.Y * 2f);
 
-            Camera.Scale = new Vector2(Math.Min(0.5f, GameManager.Height / (ConvertUnits.ToDisplayUnits(blob1.Position - blob2.Position).Length() + ScalePadding)));
+            Camera.Scale = new Vector2(Math.Min(0.5f, GameManager.Height / (ConvertUnits.ToDisplayUnits(blueBlob.Position - orangeBlob.Position).Length() + ScalePadding)));
+
+            // DEATH ZONE
+
+            if (blueFrameContacts > 0)
+                blueFramesImpaled++;
+            else
+                blueFramesImpaled = 0;
+
+            if (orangeContacts > 0)
+                orangeFramesImpaled++;
+            else
+                orangeFramesImpaled = 0;
+
+            if (blueBlob.IsDead)
+                GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue ran out of health!"));
+            else if (orangeBlob.IsDead)
+                GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft, orangeLivesLeft - 1, "Orange ran out of health!"));
+            else if (Math.Abs(blueBlob.Position.Y - orangeBlob.Position.Y) > MaxHeightDifference)
+            {
+                if (blueBlob.Position.Y > orangeBlob.Position.Y)
+                    GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue fell to far!"));
+                else
+                    GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft, orangeLivesLeft - 1, "Orange fell to far!"));
+            }
+            else if (blueFrameContacts > MaxCollisionsPerFrame || blueFramesImpaled > MaxFramesImpaled)
+                GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue got trapped!"));
+            else if (orangeContacts > MaxCollisionsPerFrame || orangeFramesImpaled > MaxFramesImpaled)
+                GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft, orangeLivesLeft - 1, "Orange got trapped!"));
+
+            blueFrameContacts = 0;
+            orangeContacts = 0;
         }
         
         protected override void OnDraw(SpriteBatch spriteBatch)
@@ -84,7 +159,6 @@ namespace BlobFighters.Scenes
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-
         }
 
         protected override void OnDestroy()
