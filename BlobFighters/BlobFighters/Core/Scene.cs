@@ -27,6 +27,11 @@ namespace BlobFighters.Core
         /// <summary>
         /// A list containing all destroyed game objects from the last frame.
         /// </summary>
+        private readonly List<GameObject> addedGameObjects;
+
+        /// <summary>
+        /// A list containing all destroyed game objects from the last frame.
+        /// </summary>
         private readonly List<GameObject> destroyedGameObjects;
 
         /// <summary>
@@ -62,6 +67,7 @@ namespace BlobFighters.Core
             World = new World(Vector2.Zero);
             DebugView = new DebugViewXNA(World);
             gameObjects = new Dictionary<string, GameObject>();
+            addedGameObjects = new List<GameObject>();
             destroyedGameObjects = new List<GameObject>();
 
             Camera = new Camera();
@@ -88,6 +94,11 @@ namespace BlobFighters.Core
         /// <param name="deltaTime"></param>
         public void Update(float deltaTime)
         {
+            foreach (GameObject gameObject in addedGameObjects)
+                gameObjects.Add(gameObject.Name, gameObject);
+
+            addedGameObjects.Clear();
+
             World.Step(deltaTime);
 
             foreach (GameObject gameObject in gameObjects.Values)
@@ -188,7 +199,7 @@ namespace BlobFighters.Core
                 name = newName;
             }
 
-            gameObjects.Add(name, gameObject);
+            addedGameObjects.Add(gameObject);
 
             return name;
         }

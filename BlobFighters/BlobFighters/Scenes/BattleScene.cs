@@ -28,7 +28,7 @@ namespace BlobFighters.Scenes
 
         protected override void OnInit()
         {
-            TextureManager.Instance.Load("Images/Canvas", "Canvas");
+            TextureManager.Instance.Load("Images/Cursor", "Cursor");
             TextureManager.Instance.Load("Images/Body", "Body");
             TextureManager.Instance.Load("Images/Face", "Face");
             TextureManager.Instance.Load("Images/Head", "Head");
@@ -63,7 +63,6 @@ namespace BlobFighters.Scenes
         protected override void OnUpdate(float deltaTime)
         {
             GamePadState state = GamePad.GetState(0);
-            Camera.Position += new Vector2(state.ThumbSticks.Right.X * 1000f, 0f) * deltaTime;
 
 
             if (state.Buttons.Start == ButtonState.Pressed)

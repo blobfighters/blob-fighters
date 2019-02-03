@@ -53,8 +53,10 @@
     <Compile Include="Objects\Blob.cs" />
     <Compile Include="Objects\BodyPart.cs" />
     <Compile Include="Objects\BodyPartType.cs" />
+    <Compile Include="Objects\IDrawable.cs" />
     <Compile Include="Objects\PercentageIndicator.cs" />
     <Compile Include="Objects\Ground.cs" />
+    <Compile Include="Objects\Terrain.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Scene.cs" />
@@ -138,6 +140,7 @@
     <Content Include="Content\Images\Arm.png" />
     <Content Include="Content\Images\Body.png" />
     <Content Include="Content\Images\Canvas.jpg" />
+    <Content Include="Content\Images\Cursor.png" />
     <Content Include="Content\Images\Face.png" />
     <Content Include="Content\Images\Head.png" />
     <Content Include="Content\Images\Octane.png" />
