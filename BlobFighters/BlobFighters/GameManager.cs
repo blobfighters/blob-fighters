@@ -17,12 +17,12 @@ namespace BlobFighters
         /// <summary>
         /// The width of the game window.
         /// </summary>
-        private const int Width = 1280;
+        public const int Width = 1280;
 
         /// <summary>
         /// The height of the game window.
         /// </summary>
-        private const int Height = 720;
+        public const int Height = 720;
 
         /// <summary>
         /// The private singleton of this instance.
