@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FarseerPhysics.DebugView;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -26,7 +25,6 @@ namespace BlobFighters.Scenes
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-            throw new NotImplementedException();
         }
 
         protected override void OnInit()

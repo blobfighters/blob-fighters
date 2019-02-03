@@ -33,7 +33,7 @@ namespace BlobFighters.Objects
 
         private const float BodyRotationForce = 40f;
 
-        private const float BodyJumpForce = 10f;
+        private const float BodyJumpForce = 25f;
 
         private const float NeckLength = 0.15f;
         private const float NeckPivot = 0.25f;
@@ -52,6 +52,10 @@ namespace BlobFighters.Objects
         private const float ForearmScale = 0.75f;
 
         private const float Deadzone = 0.25f;
+
+        private const float JumpCooldown = 0.25f;
+
+        private const float MaxAttackDamage = 10f;
 
         private readonly Color color;
 
@@ -77,6 +81,11 @@ namespace BlobFighters.Objects
         private int direction;
 
         private float bodyMovementForce;
+        private float damageRatio;
+
+        private float timeUntilJump;
+
+        public float AttackStrength { get; private set; }
 
         public Blob(Color color, int playerId, Vector2 position) : base($"{color} Blob", position, 0f)
         {
@@ -91,8 +100,12 @@ namespace BlobFighters.Objects
             ownedBodies = new List<Body>();
 
             numGroundContacts = 0;
-            bodyMovementForce = BodyAirMovementForce;
             direction = 1;
+
+            bodyMovementForce = BodyAirMovementForce;
+            damageRatio = 0f;
+
+            timeUntilJump = 0f;
 
             CreateBody();
             CreateHead();
@@ -213,6 +226,8 @@ namespace BlobFighters.Objects
         {
             GamePadState state = GamePad.GetState(playerId);
 
+            timeUntilJump = Math.Max(timeUntilJump - deltaTime, 0f);
+
             if (Math.Abs(state.ThumbSticks.Left.X) >= Deadzone)
             {
                 if (state.ThumbSticks.Left.X > 0)
@@ -225,8 +240,11 @@ namespace BlobFighters.Objects
 
             body.ApplyTorque(-body.Rotation * BodyRotationForce);
 
-            if (state.IsButtonDown(Mappings.Jump) && numGroundContacts > 0)
+            if (state.IsButtonDown(Mappings.Jump) && timeUntilJump == 0f && numGroundContacts > 0)
+            {
                 body.ApplyLinearImpulse(new Vector2(0f, -BodyJumpForce));
+                timeUntilJump = JumpCooldown;
+            }
 
             if (state.IsButtonDown(Mappings.Attack))
             {
