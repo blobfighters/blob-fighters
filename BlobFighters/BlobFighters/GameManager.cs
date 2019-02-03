@@ -72,7 +72,7 @@ namespace BlobFighters
 
             graphics = new GraphicsDeviceManager(this)
             {
-                IsFullScreen = true,
+                //IsFullScreen = true,
                 PreferredBackBufferWidth = Width,
                 PreferredBackBufferHeight = Height
             };

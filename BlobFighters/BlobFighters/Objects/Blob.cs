@@ -20,13 +20,6 @@ namespace BlobFighters.Objects
 {
     public class Blob : GameObject
     {
-        public enum BodyPartType
-        {
-            Body = 0,
-            Head = 1,
-            Arm = 2
-        }
-
         private const float BodyWidth = 0.75f;
         private const float BodyHeight = 1f;
 
@@ -63,8 +56,8 @@ namespace BlobFighters.Objects
 
         private const float JumpCooldown = 0.25f;
 
-        private const float MaxAttackStrength = 10f;
-        private const float AttackDecayRate = 50f;
+        private const float MaxAttackStrength = 1f;
+        private const float AttackDecayRate = 5f;
 
         private readonly Color color;
 
@@ -90,9 +83,10 @@ namespace BlobFighters.Objects
         private int direction;
 
         private float bodyMovementForce;
-        private float damageRatio;
 
         private float timeUntilJump;
+
+        public float DamageRatio { get; set; }
 
         public float AttackStrength { get; private set; }
 
@@ -112,7 +106,7 @@ namespace BlobFighters.Objects
             direction = 1;
 
             bodyMovementForce = BodyAirMovementForce;
-            damageRatio = 0f;
+            DamageRatio = 0f;
 
             timeUntilJump = 0f;
 
@@ -120,9 +114,6 @@ namespace BlobFighters.Objects
             CreateHead();
             CreateArm(ArmSpacing, RestingArmAngle, out leftUpperarm, out leftForearm, out leftShoulder);
             CreateArm(-ArmSpacing, -RestingArmAngle, out rightUpperarm, out rightForearm, out rightShoulder);
-
-            leftUpperarm.IgnoreCollisionWith(rightForearm);
-            rightUpperarm.IgnoreCollisionWith(leftForearm);
 
             InputManager.Instance.OnButtonStateChanged += ButtonStateChanged;
         }
@@ -145,7 +136,7 @@ namespace BlobFighters.Objects
                         break;
                     case Mappings.Attack:
                         if (AttackStrength == 0f)
-                            AttackStrength = MaxAttackStrength;
+                            AttackStrength = 1f;
 
                         break;
                 }
@@ -154,7 +145,9 @@ namespace BlobFighters.Objects
 
         private void CreateBody()
         {
-            body = new Body(Scene.World, Position, 0f, BodyType.Dynamic, BodyPartType.Body)
+            BodyPart bp = new BodyPart(BodyPartType.Body, this);
+
+            body = new Body(Scene.World, Position, 0f, BodyType.Dynamic)
             {
                 AngularDamping = BodyAngularDamping,
                 LinearDamping = BodyAirLinearDamping
@@ -166,9 +159,9 @@ namespace BlobFighters.Objects
                 new Vector2(BodyWidth * 0.5f, -BodyHeight),
                 new Vector2(BodyWidth * 0.5f, 0f),
                 new Vector2(-BodyWidth * 0.5f, 0f),
-            }), 1f));
+            }), 1f), bp);
 
-            Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity));
+            Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity), bp);
             baseFixture.Friction = BodyFriction;
             baseFixture.OnCollision = OnBaseCollision;
             baseFixture.OnSeparation = OnBaseSeparation;
@@ -176,8 +169,8 @@ namespace BlobFighters.Objects
 
         private void CreateHead()
         {
-            head = new Body(Scene.World, Position - new Vector2(0f, BodyHeight + NeckLength), 0f, BodyType.Dynamic, BodyPartType.Head);
-            head.CreateFixture(new CircleShape(BodyWidth * 0.5f, HeadDensity));
+            head = new Body(Scene.World, Position - new Vector2(0f, BodyHeight + NeckLength), 0f, BodyType.Dynamic);
+            head.CreateFixture(new CircleShape(BodyWidth * 0.5f, HeadDensity), new BodyPart(BodyPartType.Head, this));
 
             JointFactory.CreateWeldJoint(Scene.World, body, head, new Vector2(0f, -BodyHeight), new Vector2(0f, NeckPivot)).FrequencyHz = HeadStiffness;
         }
@@ -199,12 +192,14 @@ namespace BlobFighters.Objects
             forearm.IgnoreCollisionWith(body);
             forearm.IgnoreCollisionWith(head);
 
+            forearm.OnCollision += OnArmCollision;
+
             return forearm;
         }
 
         private Body CreateArmSegment(Vector2 position)
         {
-            Body segment = new Body(Scene.World, position, 0f, BodyType.Dynamic, BodyPartType.Arm);
+            Body segment = new Body(Scene.World, position, 0f, BodyType.Dynamic);
 
             segment.CreateFixture(new PolygonShape(new FarseerPhysics.Common.Vertices(new Vector2[]
             {
@@ -212,7 +207,7 @@ namespace BlobFighters.Objects
                 new Vector2(ArmWidth * 0.5f, -ArmLength * 0.5f),
                 new Vector2(ArmWidth * 0.5f, ArmLength * 0.5f),
                 new Vector2(-ArmWidth * 0.5f, ArmLength * 0.5f)
-            }), 0.5f));
+            }), 0.5f), new BodyPart(BodyPartType.Arm, this));
 
             return segment;
         }
@@ -233,6 +228,37 @@ namespace BlobFighters.Objects
 
             body.LinearDamping = BodyAirLinearDamping;
             bodyMovementForce = BodyAirMovementForce;
+        }
+
+        private bool OnArmCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
+        {
+            if (!(fixtureB.UserData is BodyPart bodyPart))
+                return true;
+
+            if (bodyPart.Blob == this)
+                return false;
+
+            if (AttackStrength == 0f)
+                return true;
+
+            float attackPower = AttackStrength * MaxAttackStrength;
+
+            switch (bodyPart.BodyPartType)
+            {
+                case BodyPartType.Body:
+                    attackPower *= 1.5f;
+                    break;
+                case BodyPartType.Head:
+                    attackPower *= 4f;
+                    break;
+            }
+
+            AttackStrength = 0f;
+
+            bodyPart.Blob.DamageRatio += attackPower;
+            bodyPart.Blob.body.ApplyLinearImpulse((bodyPart.Blob.Position - Position) * attackPower * bodyPart.Blob.DamageRatio);
+
+            return true;
         }
 
         private void DrawBodyPart(Body body, Texture2D texture, Color color, SpriteBatch spriteBatch, Vector2? scale = null, Vector2 offset = default(Vector2))
