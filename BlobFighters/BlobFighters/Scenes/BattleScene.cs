@@ -1,5 +1,6 @@
 ﻿using BlobFighters.Core;
 using BlobFighters.Objects;
+using FarseerPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,6 +17,9 @@ namespace BlobFighters.Scenes
         private Blob blob1;
         private Blob blob2;
         private Ground ground;
+
+        private Vector2 cameraCurrent;
+        private Vector2 cameraTarget;
 
         protected override void OnInit()
         {
@@ -44,6 +48,12 @@ namespace BlobFighters.Scenes
 
             if (state.Buttons.Start == ButtonState.Pressed)
                 GameManager.Instance.LoadScene(new BattleScene());
+                
+            cameraCurrent = Camera.Position;
+            cameraTarget = (blob1.Position + blob2.Position) / 2f;
+            Camera.Position = new Vector2(ConvertUnits.ToDisplayUnits(cameraTarget.X) - Camera.Origin.X, ConvertUnits.ToDisplayUnits(cameraTarget.Y) - Camera.Origin.Y * 2f);
+
+
         }
         
         protected override void OnDraw(SpriteBatch spriteBatch)
@@ -57,5 +67,6 @@ namespace BlobFighters.Scenes
         protected override void OnDestroy()
         {
         }
+
     }
 }

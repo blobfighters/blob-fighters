@@ -93,6 +93,7 @@ namespace BlobFighters.Objects
         private float damageRatio;
 
         private float timeUntilJump;
+        internal int position;
 
         public float AttackStrength { get; private set; }
 
