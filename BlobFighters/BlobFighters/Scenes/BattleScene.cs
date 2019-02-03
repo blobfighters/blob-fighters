@@ -53,9 +53,9 @@ namespace BlobFighters.Scenes
             Camera.Scale = new Vector2(0.5f);
 
             materialsPosition1 = new Vector2(155, 700);
-            new MaterialBrowser(materialsPosition1, blob1.playerId);
+            new MaterialBrowser(materialsPosition1, blob1.PlayerId);
             materialsPosition2 = new Vector2(840, 700);
-            new MaterialBrowser(materialsPosition2, blob2.playerId);
+            new MaterialBrowser(materialsPosition2, blob2.PlayerId);
 
             World.Gravity = new Vector2(0f, 30f);
         }
