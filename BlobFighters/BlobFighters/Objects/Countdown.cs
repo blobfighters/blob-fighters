@@ -11,7 +11,8 @@ namespace BlobFighters.Objects
 {
     public class Countdown : GameObject
     {
-        private const float TimePerMessage = 1f;
+        private const float TimePerMessage = 0.75f;
+        private const float FirstMessageTime = 1.5f;
 
         private readonly SpriteFont font;
         private readonly Action whenComplete;
@@ -27,7 +28,7 @@ namespace BlobFighters.Objects
             this.messages = messages;
 
             currentMessageIndex = 0;
-            timeRemaining = TimePerMessage;
+            timeRemaining = FirstMessageTime;
         }
 
         protected override void OnUpdate(float deltaTime)
