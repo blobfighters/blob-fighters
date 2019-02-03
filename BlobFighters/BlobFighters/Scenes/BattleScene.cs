@@ -1,4 +1,4 @@
-﻿using BlobFighters.Core;
+﻿using BlobFighters.Core; 
 using BlobFighters.Objects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,6 +16,8 @@ namespace BlobFighters.Scenes
         private Blob blob1;
         private Blob blob2;
         private Ground ground;
+        PercentageIndicator healthP1, healthP2;
+        SpriteFont font;
 
         protected override void OnInit()
         {
@@ -25,10 +27,14 @@ namespace BlobFighters.Scenes
             TextureManager.Instance.Load("Images/Head", "Head");
             TextureManager.Instance.Load("Images/Arm", "Arm");
 
+
             //BackgroundTexture = TextureManager.Instance.Get("Canvas");
 
             blob1 = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             blob2 = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
+            font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
+            healthP1 = new PercentageIndicator(font, new Vector2(220, 600),blob1);
+            healthP2 = new PercentageIndicator(font, new Vector2(900, 600),blob2);
             ground = new Ground();
 
             Camera.Position += new Vector2(0f, -GameManager.Instance.GraphicsDevice.Viewport.Height * 0.5f);
@@ -41,6 +47,7 @@ namespace BlobFighters.Scenes
         {
             GamePadState state = GamePad.GetState(0);
             Camera.Position += new Vector2(state.ThumbSticks.Right.X * 1000f, 0f) * deltaTime;
+
 
             if (state.Buttons.Start == ButtonState.Pressed)
                 GameManager.Instance.LoadScene(new BattleScene());

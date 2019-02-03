@@ -22,8 +22,7 @@ namespace BlobFighters.Tests
         {
             BackgroundColor = Color.White;
             font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
-            healthP1 = new PercentageIndicator(font,new Vector2(220, 600));
-            healthP2 = new PercentageIndicator(font, new Vector2(900, 600));
+
             
             
         }
