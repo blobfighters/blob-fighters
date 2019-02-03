@@ -62,10 +62,10 @@ namespace BlobFighters.Objects
         private const float BodyAttackScale = 1.5f;
         private const float HeadAttackScale = 4f;
 
-        private const float DrawSpeed = 5f;
-        private const float MaxDrawDistance = 1f;
+        private const float DrawSpeed = 10f;
+        private const float MaxDrawDistance = 2.5f;
 
-        private readonly Vector2 cursorOffset = new Vector2(BodyWidth * 2f, BodyWidth * 0.5f);
+        private readonly Vector2 cursorOffset = new Vector2(BodyWidth, BodyWidth * 0.5f);
 
         private readonly Color color;
 
@@ -96,7 +96,6 @@ namespace BlobFighters.Objects
         private float bodyMovementForce;
 
         private float timeUntilJump;
-        internal int position;
 
         public int PlayerId { get; private set; }
 
@@ -357,7 +356,7 @@ namespace BlobFighters.Objects
             }
             else
             {
-                cursorPosition = new Vector2(state.ThumbSticks.Right.X, -state.ThumbSticks.Right.Y);
+                cursorPosition = new Vector2(state.ThumbSticks.Right.X, -state.ThumbSticks.Right.Y) * MaxDrawDistance;
 
                 if (currentDrawable != null)
                 {
