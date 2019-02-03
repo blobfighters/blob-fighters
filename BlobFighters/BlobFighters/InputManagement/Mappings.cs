@@ -5,14 +5,14 @@ namespace BlobFighters.InputManagement
 {
     public static class Mappings
     {
-        public static readonly Buttons Jump = Buttons.A;
+        public const Buttons Jump = Buttons.A;
 
-        public static readonly Buttons Attack = Buttons.B;
+        public const Buttons Attack = Buttons.B;
 
-        public static readonly Buttons Draw = Buttons.RightTrigger;
+        public const Buttons Draw = Buttons.RightTrigger;
 
-        public static readonly Buttons ChangeMaterialRight = Buttons.RightShoulder;
+        public const Buttons ChangeMaterialRight = Buttons.RightShoulder;
 
-        public static readonly Buttons ChangeMaterialLeft = Buttons.LeftShoulder;
+        public const Buttons ChangeMaterialLeft = Buttons.LeftShoulder;
     }
 }
