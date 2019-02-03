@@ -258,7 +258,7 @@ namespace BlobFighters.Objects
             bodyPart.Blob.DamageRatio += attackPower;
             bodyPart.Blob.body.ApplyLinearImpulse((bodyPart.Blob.Position - Position) * attackPower * bodyPart.Blob.DamageRatio);
 
-            return true;
+            return false;
         }
 
         private void DrawBodyPart(Body body, Texture2D texture, Color color, SpriteBatch spriteBatch, Vector2? scale = null, Vector2 offset = default(Vector2))
