@@ -12,12 +12,14 @@ namespace BlobFighters.Objects
     class PercentageIndicator : GameObject
     {
         private SpriteFont font;
-        public int score = 0;
+        public float damage;
         private Vector2 location;
-        public PercentageIndicator(SpriteFont inputFont, Vector2 inputLocation) : base("Percentage")
+        Blob blob;
+        public PercentageIndicator(SpriteFont inputFont, Vector2 inputLocation, Blob blobIn) : base("Percentage")
         {
             font = inputFont;
             location = inputLocation;
+            blob = blobIn;
         }
 
         protected override void OnDestroy()
@@ -30,15 +32,12 @@ namespace BlobFighters.Objects
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-            spriteBatch.DrawString(font, score + "%", location, Color.Black);
+            spriteBatch.DrawString(font,  Math.Round(blob.DamageRatio,1) + "%", location, Color.Black);
         }
 
         protected override void OnUpdate(float deltaTime)
         {
-            if (score < 150)
-            {
-                score++;
-            }
+    
         }
     }
         

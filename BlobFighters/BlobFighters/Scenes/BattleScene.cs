@@ -1,5 +1,6 @@
-﻿using BlobFighters.Core;
+﻿using BlobFighters.Core; 
 using BlobFighters.Objects;
+using FarseerPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,6 +17,11 @@ namespace BlobFighters.Scenes
         private Blob blob1;
         private Blob blob2;
         private Ground ground;
+        PercentageIndicator healthP1, healthP2;
+        SpriteFont font;
+
+        private Vector2 cameraCurrent;
+        private Vector2 cameraTarget;
 
         protected override void OnInit()
         {
@@ -27,6 +33,9 @@ namespace BlobFighters.Scenes
 
             blob1 = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             blob2 = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
+            font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
+            healthP1 = new PercentageIndicator(font, new Vector2(220, 600),blob1);
+            healthP2 = new PercentageIndicator(font, new Vector2(900, 600),blob2);
             ground = new Ground();
 
             Camera.Position += new Vector2(0f, -GameManager.Instance.GraphicsDevice.Viewport.Height * 0.5f);
@@ -39,8 +48,15 @@ namespace BlobFighters.Scenes
         {
             GamePadState state = GamePad.GetState(0);
 
+
             if (state.Buttons.Start == ButtonState.Pressed)
                 GameManager.Instance.LoadScene(new BattleScene());
+                
+            cameraCurrent = Camera.Position;
+            cameraTarget = (blob1.Position + blob2.Position) / 2f;
+            Camera.Position = new Vector2(ConvertUnits.ToDisplayUnits(cameraTarget.X) - Camera.Origin.X, ConvertUnits.ToDisplayUnits(cameraTarget.Y) - Camera.Origin.Y * 2f);
+
+
         }
         
         protected override void OnDraw(SpriteBatch spriteBatch)
@@ -54,5 +70,6 @@ namespace BlobFighters.Scenes
         protected override void OnDestroy()
         {
         }
+
     }
 }

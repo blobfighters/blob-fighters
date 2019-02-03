@@ -1,6 +1,7 @@
 ﻿using BlobFighters.Core;
 using BlobFighters.Objects;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using System;   
 using System.Collections.Generic;
@@ -14,13 +15,16 @@ namespace BlobFighters.Tests
     {
         PercentageIndicator healthP1, healthP2;
         SpriteFont font;
+        Vector2 mousePos;
+        Texture2D wood;
 
         protected override void OnInit()
         {
-            BackgroundColor = Color.Black;
+            BackgroundColor = Color.White;
             font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
-            healthP1 = new PercentageIndicator(font,new Vector2(220, 600));
-            healthP2 = new PercentageIndicator(font, new Vector2(900, 600));
+
+            
+            
         }
         protected override void OnDestroy()
         {
@@ -39,7 +43,6 @@ namespace BlobFighters.Tests
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-            
         }
     }
 }

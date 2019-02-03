@@ -96,6 +96,7 @@ namespace BlobFighters.Objects
         private float bodyMovementForce;
 
         private float timeUntilJump;
+        internal int position;
 
         public int PlayerId { get; private set; }
 
