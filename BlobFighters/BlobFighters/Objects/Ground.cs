@@ -1,8 +1,10 @@
 ﻿using BlobFighters.Core;
+using FarseerPhysics;
 using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +38,8 @@ namespace BlobFighters.Objects
 
         protected override void OnDraw(SpriteBatch spriteBatch)
         {
+            spriteBatch.DrawRectangle(new RectangleF(ConvertUnits.ToDisplayUnits(new Vector2(-GroundWidth * 0.5f, 0)),
+                new Size2(ConvertUnits.ToDisplayUnits(GroundWidth), ConvertUnits.ToDisplayUnits(GroundDepth))), Color.Black, 5f);
         }
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)

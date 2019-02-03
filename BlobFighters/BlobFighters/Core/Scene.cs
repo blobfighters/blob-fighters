@@ -45,6 +45,11 @@ namespace BlobFighters.Core
         protected Color BackgroundColor { get; set; }
 
         /// <summary>
+        /// The background texture.
+        /// </summary>
+        protected Texture2D BackgroundTexture { get; set; }
+
+        /// <summary>
         /// The physics world in the scene.
         /// </summary>
         public World World { get; private set; }
@@ -103,6 +108,20 @@ namespace BlobFighters.Core
         public void Draw(SpriteBatch spriteBatch)
         {
             GameManager.Instance.GraphicsDevice.Clear(BackgroundColor);
+
+            if (BackgroundTexture != null)
+            {
+                Matrix m = Camera.ViewMatrix;
+
+                Rectangle rect = new Rectangle(0, 0, GameManager.Instance.GraphicsDevice.Viewport.Width * 4,
+                    GameManager.Instance.GraphicsDevice.Viewport.Height * 4);
+
+                spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, transformMatrix: Camera.ViewMatrix);
+
+                spriteBatch.Draw(BackgroundTexture, Camera.Position, rect, Color.White, 0f, Vector2.Zero, 0.25f, SpriteEffects.None, 0f);
+
+                spriteBatch.End();
+            }
 
             spriteBatch.Begin(transformMatrix: Camera.ViewMatrix);
 
