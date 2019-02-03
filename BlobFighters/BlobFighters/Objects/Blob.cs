@@ -62,9 +62,12 @@ namespace BlobFighters.Objects
         private const float BodyAttackScale = 1.5f;
         private const float HeadAttackScale = 4f;
 
-        private readonly Color color;
+        private const float DrawSpeed = 5f;
+        private const float MaxDrawDistance = 1f;
 
-        private readonly int playerId;
+        private readonly Vector2 cursorOffset = new Vector2(BodyWidth * 2f, BodyWidth * 0.5f);
+
+        private readonly Color color;
 
         private Body body;
         private Body head;
@@ -75,12 +78,17 @@ namespace BlobFighters.Objects
         private readonly WeldJoint leftShoulder;
         private readonly WeldJoint rightShoulder;
 
+        private readonly Texture2D cursorTexture;
         private readonly Texture2D bodyTexture;
         private readonly Texture2D faceTexture;
         private readonly Texture2D headTexture;
         private readonly Texture2D armTexture;
 
+        private Vector2 cursorPosition;
+
         private List<Body> ownedBodies;
+
+        private IDrawable currentDrawable;
 
         private int numGroundContacts;
         private int direction;
@@ -89,19 +97,26 @@ namespace BlobFighters.Objects
 
         private float timeUntilJump;
 
+        public int PlayerId { get; private set; }
+
         public float DamageRatio { get; set; }
 
         public float AttackStrength { get; private set; }
 
+        public Vector2 AbsoluteCursorPosition => Position + cursorOffset * new Vector2(-direction, 1f) + cursorPosition;
+
         public Blob(Color color, int playerId, Vector2 position) : base($"{color} Blob", position, 0f)
         {
             this.color = color;
-            this.playerId = playerId;
-            
+            this.PlayerId = playerId;
+
+            cursorTexture = TextureManager.Instance.Get("Cursor");
             bodyTexture = TextureManager.Instance.Get("Body");
             faceTexture = TextureManager.Instance.Get("Face");
             headTexture = TextureManager.Instance.Get("Head");
             armTexture = TextureManager.Instance.Get("Arm");
+
+            cursorPosition = Vector2.Zero;
 
             ownedBodies = new List<Body>();
 
@@ -123,7 +138,7 @@ namespace BlobFighters.Objects
 
         private void ButtonStateChanged(int playerId, Buttons button, ButtonState state)
         {
-            if (playerId != this.playerId)
+            if (playerId != this.PlayerId)
                 return;
 
             if (state == ButtonState.Pressed)
@@ -290,17 +305,20 @@ namespace BlobFighters.Objects
 
         protected override void OnUpdate(float deltaTime)
         {
-            GamePadState state = GamePad.GetState(playerId);
+            GamePadState state = GamePad.GetState(PlayerId);
 
             timeUntilJump = Math.Max(timeUntilJump - deltaTime, 0f);
             AttackStrength = Math.Max(AttackStrength - deltaTime * AttackDecayRate, 0f);
 
             if (Math.Abs(state.ThumbSticks.Left.X) >= Deadzone)
             {
-                if (state.ThumbSticks.Left.X > 0)
-                    direction = -1;
-                else if (state.ThumbSticks.Left.X < 0)
-                    direction = 1;
+                if (currentDrawable == null)
+                {
+                    if (state.ThumbSticks.Left.X > 0)
+                        direction = -1;
+                    else if (state.ThumbSticks.Left.X < 0)
+                        direction = 1;
+                }
 
                 body.ApplyForce(new Vector2(state.ThumbSticks.Left.X * bodyMovementForce, 0f));
             }
@@ -320,6 +338,32 @@ namespace BlobFighters.Objects
 
             Position = body.Position;
             Rotation = body.Rotation;
+
+            if (state.Triggers.Right > 0.5f)
+            {
+                cursorPosition += new Vector2(state.ThumbSticks.Right.X, -state.ThumbSticks.Right.Y) * DrawSpeed * deltaTime;
+
+                if (cursorPosition.Length() > MaxDrawDistance)
+                {
+                    cursorPosition.Normalize();
+                    cursorPosition *= MaxDrawDistance;
+                }
+
+                if (currentDrawable == null)
+                    currentDrawable = new Terrain(AbsoluteCursorPosition);
+
+                currentDrawable?.SetPosition(AbsoluteCursorPosition);
+            }
+            else
+            {
+                cursorPosition = new Vector2(state.ThumbSticks.Right.X, -state.ThumbSticks.Right.Y);
+
+                if (currentDrawable != null)
+                {
+                    currentDrawable.StopDrawing();
+                    currentDrawable = null;
+                }
+            }
         }
 
         protected override void OnDraw(SpriteBatch spriteBatch)
@@ -339,6 +383,8 @@ namespace BlobFighters.Objects
 
             DrawBodyPart(head, headTexture, color, spriteBatch);
             DrawBodyPart(head, faceTexture, Color.White, spriteBatch, null, new Vector2(direction * 0.1f, 0f));
+
+            spriteBatch.Draw(cursorTexture, ConvertUnits.ToDisplayUnits(AbsoluteCursorPosition), Color.White);
         }
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
