@@ -95,7 +95,8 @@ namespace BlobFighters.Core
         public void Update(float deltaTime)
         {
             foreach (GameObject gameObject in addedGameObjects)
-                gameObjects.Add(gameObject.Name, gameObject);
+                if (!gameObjects.ContainsKey(gameObject.Name))
+                    gameObjects.Add(gameObject.Name, gameObject);
 
             addedGameObjects.Clear();
 
