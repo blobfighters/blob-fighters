@@ -143,7 +143,9 @@
     <Content Include="Content\Images\Arm.png" />
     <Content Include="Content\Images\Body.png" />
     <Content Include="Content\Images\Canvas.jpg" />
+    <Content Include="Content\Images\Controls.png" />
     <Content Include="Content\Images\Cursor.png" />
+    <Content Include="Content\Images\exitButton.png" />
     <Content Include="Content\Images\Face.png" />
     <Content Include="Content\Images\Head.png" />
     <Content Include="Content\Images\Octane.png" />

@@ -18,6 +18,7 @@ namespace BlobFighters.Scenes
     {
         public const int StartingNumberOfLives = 3;
 
+        private const float ExitButtonScale = 0.25f;
         private const float ScalePadding = 1000f;
         private const float MaxHeightDifference = 50f;
         private const int MaxFramesImpaled = 30;
@@ -28,6 +29,7 @@ namespace BlobFighters.Scenes
         private Ground ground;
         private Countdown countdown;
 
+        Button exitButton;
         HealthIndicator healthP1, healthP2;
         SpriteFont font;
 
@@ -69,6 +71,7 @@ namespace BlobFighters.Scenes
 
         protected override void OnInit()
         {
+            TextureManager.Instance.Load("Images/exitButton", "Exit");
             TextureManager.Instance.Load("Images/Cursor", "Cursor");
             TextureManager.Instance.Load("Images/Body", "Body");
             TextureManager.Instance.Load("Images/Face", "Face");
@@ -77,10 +80,19 @@ namespace BlobFighters.Scenes
 
             blueBlob = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             orangeBlob = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
-            font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
+
+            font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");
+
+            exitButton = new Button(TextureManager.Instance.Get("Exit"), Vector2.Zero, () =>
+            {
+                GameManager.Instance.LoadScene(new InitialScene());
+            }, ExitButtonScale);
+
             healthP2 = new HealthIndicator(font, new Vector2(256, GameManager.Instance.Height - 125), blueBlob, blueLivesLeft);
             healthP1 = new HealthIndicator(font, new Vector2(GameManager.Instance.Width - 448, GameManager.Instance.Height - 125), orangeBlob, orangeLivesLeft);
+
             ground = new Ground();
+
             countdown = new Countdown(new Vector2(GameManager.Instance.Width * 0.5f, 256f), font, () =>
             {
                 blueBlob.InputEnabled = orangeBlob.InputEnabled = true;
