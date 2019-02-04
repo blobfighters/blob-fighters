@@ -15,16 +15,6 @@ namespace BlobFighters
     public class GameManager : Game
     {
         /// <summary>
-        /// The width of the game window.
-        /// </summary>
-        public const int Width = 1920;
-
-        /// <summary>
-        /// The height of the game window.
-        /// </summary>
-        public const int Height = 1080;
-
-        /// <summary>
         /// The private singleton of this instance.
         /// </summary>
         private static GameManager instance;
@@ -47,6 +37,16 @@ namespace BlobFighters
         /// The <see cref="GraphicsDeviceManager"/> of this instance.
         /// </summary>
         private readonly GraphicsDeviceManager graphics;
+
+        /// <summary>
+        /// The width of the game window.
+        /// </summary>
+        public int Width { get; private set; }
+
+        /// <summary>
+        /// The height of the game window.
+        /// </summary>
+        public int Height { get; private set; }
 
         /// <summary>
         /// The active running scene.
@@ -73,8 +73,8 @@ namespace BlobFighters
             graphics = new GraphicsDeviceManager(this)
             {
                 IsFullScreen = true,
-                PreferredBackBufferWidth = Width,
-                PreferredBackBufferHeight = Height
+                PreferredBackBufferWidth = Width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
+                PreferredBackBufferHeight = Height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height
             };
 
             Content.RootDirectory = "Content";

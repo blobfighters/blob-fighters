@@ -78,10 +78,10 @@ namespace BlobFighters.Scenes
             blueBlob = new Blob(Color.LightBlue, 0, new Vector2(-3f, -1f));
             orangeBlob = new Blob(Color.Orange, 1, new Vector2(3f, -1f));
             font = GameManager.Instance.Content.Load<SpriteFont>("Percentage");//load the spriteFont file
-            healthP2 = new HealthIndicator(font, new Vector2(256, GameManager.Height - 125), blueBlob, blueLivesLeft);
-            healthP1 = new HealthIndicator(font, new Vector2(GameManager.Width - 448, GameManager.Height - 125), orangeBlob, orangeLivesLeft);
+            healthP2 = new HealthIndicator(font, new Vector2(256, GameManager.Instance.Height - 125), blueBlob, blueLivesLeft);
+            healthP1 = new HealthIndicator(font, new Vector2(GameManager.Instance.Width - 448, GameManager.Instance.Height - 125), orangeBlob, orangeLivesLeft);
             ground = new Ground();
-            countdown = new Countdown(new Vector2(GameManager.Width * 0.5f, 128f), font, () =>
+            countdown = new Countdown(new Vector2(GameManager.Instance.Width * 0.5f, 256f), font, () =>
             {
                 blueBlob.InputEnabled = orangeBlob.InputEnabled = true;
             }, initialMessage, "3", "2", "1", "Go!");
@@ -120,7 +120,7 @@ namespace BlobFighters.Scenes
             cameraTarget = (blueBlob.Position + orangeBlob.Position) / 2f;
             Camera.Position = new Vector2(ConvertUnits.ToDisplayUnits(cameraTarget.X) - Camera.Origin.X, ConvertUnits.ToDisplayUnits(cameraTarget.Y) - Camera.Origin.Y * 2f);
 
-            Camera.Scale = new Vector2(Math.Min(0.5f, GameManager.Height / (ConvertUnits.ToDisplayUnits(blueBlob.Position - orangeBlob.Position).Length() + ScalePadding)));
+            Camera.Scale = new Vector2(Math.Min(0.5f, GameManager.Instance.Height / (ConvertUnits.ToDisplayUnits(blueBlob.Position - orangeBlob.Position).Length() + ScalePadding)));
 
             // DEATH ZONE
 

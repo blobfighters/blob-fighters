@@ -67,6 +67,8 @@ namespace BlobFighters.Objects
         private const float MaxHealth = 100f;
         private const float HealthDamageFactor = 0.5f;
 
+        private const float TimeToForfeit = 1f;
+
         private readonly Vector2 cursorOffset = new Vector2(BodyWidth, BodyWidth * 0.5f);
 
         public Color Color { get; private set; }
@@ -98,6 +100,7 @@ namespace BlobFighters.Objects
         private float bodyMovementForce;
 
         private float timeUntilJump;
+        private float timeSinceForfeit;
 
         public bool InputEnabled { get; set; }
 
@@ -137,6 +140,7 @@ namespace BlobFighters.Objects
             bodyMovementForce = BodyAirMovementForce;
 
             timeUntilJump = 0f;
+            timeSinceForfeit = 0f;
 
             CreateBody();
             CreateHead();
@@ -326,7 +330,16 @@ namespace BlobFighters.Objects
             GamePadState state = GamePad.GetState(PlayerId);
 
             if (state.IsButtonDown(Mappings.Forfeit))
-                Forfeited = true;
+            {
+                timeSinceForfeit += deltaTime;
+
+                if (timeSinceForfeit >= TimeToForfeit)
+                    Forfeited = true;
+            }
+            else
+            {
+                timeSinceForfeit = 0f;
+            }
 
             timeUntilJump = Math.Max(timeUntilJump - deltaTime, 0f);
             AttackStrength = Math.Max(AttackStrength - deltaTime * AttackDecayRate, 0f);

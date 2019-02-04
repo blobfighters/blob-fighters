@@ -11,7 +11,7 @@ namespace BlobFighters.Objects
 {
     public class Countdown : GameObject
     {
-        private const float TimePerMessage = 0.75f;
+        private const float TimePerMessage = 0.5f;
         private const float FirstMessageTime = 1.5f;
 
         private readonly SpriteFont font;

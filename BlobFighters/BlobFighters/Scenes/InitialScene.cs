@@ -25,7 +25,8 @@ namespace BlobFighters.Scenes
             button = GameManager.Instance.Content.Load<Texture2D>("Images/startButton");
             name = GameManager.Instance.Content.Load<Texture2D>("Images/LineFighter");
 
-            new Button(button, new Vector2((GameManager.Width - button.Width * ButtonScale) * 0.5f, (GameManager.Height - button.Height * ButtonScale) * 0.5f + 256), () =>
+            new Button(button, new Vector2((GameManager.Instance.Width - button.Width * ButtonScale) * 0.5f,
+                (GameManager.Instance.Height - button.Height * ButtonScale) * 0.5f + 256), () =>
             {
                 GameManager.Instance.LoadScene(new BattleScene(BattleScene.StartingNumberOfLives, BattleScene.StartingNumberOfLives, "Best of 5!"));
             }, ButtonScale);
@@ -41,7 +42,8 @@ namespace BlobFighters.Scenes
 
         protected override void OnDrawGUI(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(name, new Vector2((GameManager.Width - name.Width) * 0.5f, (GameManager.Height - name.Height) * 0.5f - 256), Color.White);
+            spriteBatch.Draw(name, new Vector2((GameManager.Instance.Width - name.Width) * 0.5f,
+                (GameManager.Instance.Height - name.Height) * 0.5f - 256), Color.White);
         }
 
         protected override void OnUpdate(float deltaTime)
