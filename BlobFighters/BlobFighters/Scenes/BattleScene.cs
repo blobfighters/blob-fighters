@@ -103,6 +103,8 @@ namespace BlobFighters.Scenes
 
             World.Gravity = new Vector2(0f, 30f);
             World.ContactManager.BeginContact = BeginContact;
+
+            DebugView.Enabled = true;
         }
 
         private bool BeginContact(Contact contact)

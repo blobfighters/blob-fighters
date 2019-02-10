@@ -72,9 +72,9 @@ namespace BlobFighters
 
             graphics = new GraphicsDeviceManager(this)
             {
-                IsFullScreen = true,
-                PreferredBackBufferWidth = Width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
-                PreferredBackBufferHeight = Height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height
+                //IsFullScreen = true,
+                PreferredBackBufferWidth = Width = 1280,//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
+                PreferredBackBufferHeight = Height = 720//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height
             };
 
             Content.RootDirectory = "Content";

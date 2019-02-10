@@ -28,6 +28,7 @@ namespace BlobFighters.Objects
         private const float BodyAirLinearDamping = 0.5f;
         private const float BodyDensity = 1f;
         private const float BodyFriction = 0.25f;
+        private const float BodySensorPadding = 0.1f;
 
         private const float BodyGroundMovementForce = 60f;
         private const float BodyAirMovementForce = 20f;
@@ -189,14 +190,23 @@ namespace BlobFighters.Objects
             {
                 new Vector2(-BodyWidth * 0.5f, -BodyHeight),
                 new Vector2(BodyWidth * 0.5f, -BodyHeight),
-                new Vector2(BodyWidth * 0.5f, 0f),
+                new Vector2(BodyWidth * 0.5f, 0f), 
                 new Vector2(-BodyWidth * 0.5f, 0f),
             }), 1f), bp);
 
             Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity), bp);
             baseFixture.Friction = BodyFriction;
-            baseFixture.OnCollision = OnBaseCollision;
-            baseFixture.OnSeparation = OnBaseSeparation;
+            Fixture sensor = body.CreateFixture(new CircleShape(BodyWidth * 0.5f + BodySensorPadding, 0f), bp);
+            sensor.IsSensor = true;
+            sensor.OnCollision = OnBaseCollision;
+            sensor.OnSeparation = OnBaseSeparation;
+            
+
+        }
+
+        private bool OnSensorCollide(Fixture fixtureA, Fixture fixtureB, Contact contact)
+        {
+            return true;
         }
 
         private void CreateHead()

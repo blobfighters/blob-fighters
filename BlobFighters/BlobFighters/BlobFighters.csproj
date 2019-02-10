@@ -151,13 +151,13 @@
     <Content Include="Content\Images\Octane.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FarseerPhysics\DebugView Monogame\DebugView MonoGame.csproj">
-      <Project>{ab40f902-d31c-4fb3-ada6-ec885639b31f}</Project>
-      <Name>DebugView MonoGame</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\FarseerPhysics\Farseer Physics MonoGame.csproj">
-      <Project>{0aad36e3-51a5-4a07-ab60-5c8a66bd38b7}</Project>
+    <ProjectReference Include="..\..\..\FarseerPhysics\SourceFiles\Farseer Physics MonoGame.csproj">
+      <Project>{0AAD36E3-51A5-4A07-AB60-5C8A66BD38B7}</Project>
       <Name>Farseer Physics MonoGame</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\FarseerPhysics\DebugViews\DebugView MonoGame\DebugView MonoGame.csproj">
+      <Project>{566F1803-90B5-4947-8730-57F092FBB002}</Project>
+      <Name>DebugView MonoGame</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
