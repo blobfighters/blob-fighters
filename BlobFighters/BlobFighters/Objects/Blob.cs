@@ -74,7 +74,6 @@ namespace BlobFighters.Objects
 
         public Color Color { get; private set; }
 
-        private Body body;
         private Body head;
         private readonly Body leftUpperarm;
         private readonly Body leftForearm;
@@ -114,6 +113,8 @@ namespace BlobFighters.Objects
         public float AttackStrength { get; private set; }
 
         public bool IsDead => Health <= 0f;
+
+        public Body Body { get; private set; }
 
         public Vector2 AbsoluteCursorPosition => Position + cursorOffset * new Vector2(-direction, 1f) + cursorPosition;
 
@@ -163,7 +164,7 @@ namespace BlobFighters.Objects
                     case Mappings.Jump:
                         if (timeUntilJump == 0f && numGroundContacts > 0)
                         {
-                            body.ApplyLinearImpulse(new Vector2(0f, -BodyJumpForce));
+                            Body.ApplyLinearImpulse(new Vector2(0f, -BodyJumpForce));
                             timeUntilJump = JumpCooldown;
                         }
                         break;
@@ -180,13 +181,13 @@ namespace BlobFighters.Objects
         {
             BodyPart bp = new BodyPart(BodyPartType.Body, this);
 
-            body = new Body(Scene.World, Position, 0f, BodyType.Dynamic)
+            Body = new Body(Scene.World, Position, 0f, BodyType.Dynamic)
             {
                 AngularDamping = BodyAngularDamping,
                 LinearDamping = BodyAirLinearDamping
             };
 
-            body.CreateFixture(new PolygonShape(new FarseerPhysics.Common.Vertices(new Vector2[]
+            Body.CreateFixture(new PolygonShape(new FarseerPhysics.Common.Vertices(new Vector2[]
             {
                 new Vector2(-BodyWidth * 0.5f, -BodyHeight),
                 new Vector2(BodyWidth * 0.5f, -BodyHeight),
@@ -194,14 +195,12 @@ namespace BlobFighters.Objects
                 new Vector2(-BodyWidth * 0.5f, 0f),
             }), 1f), bp);
 
-            Fixture baseFixture = body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity), bp);
+            Fixture baseFixture = Body.CreateFixture(new CircleShape(BodyWidth * 0.5f, BodyDensity), bp);
             baseFixture.Friction = BodyFriction;
-            Fixture sensor = body.CreateFixture(new CircleShape(BodyWidth * 0.5f + BodySensorPadding, 0f), bp);
+            Fixture sensor = Body.CreateFixture(new CircleShape(BodyWidth * 0.5f + BodySensorPadding, 0f), bp);
             sensor.IsSensor = true;
             sensor.OnCollision = OnBaseCollision;
             sensor.OnSeparation = OnBaseSeparation;
-            
-
         }
 
         private bool OnSensorCollide(Fixture fixtureA, Fixture fixtureB, Contact contact)
@@ -214,7 +213,7 @@ namespace BlobFighters.Objects
             head = new Body(Scene.World, Position - new Vector2(0f, BodyHeight + NeckLength), 0f, BodyType.Dynamic);
             head.CreateFixture(new CircleShape(BodyWidth * 0.5f, HeadDensity), new BodyPart(BodyPartType.Head, this));
 
-            JointFactory.CreateWeldJoint(Scene.World, body, head, new Vector2(0f, -BodyHeight), new Vector2(0f, NeckPivot)).FrequencyHz = HeadStiffness;
+            JointFactory.CreateWeldJoint(Scene.World, Body, head, new Vector2(0f, -BodyHeight), new Vector2(0f, NeckPivot)).FrequencyHz = HeadStiffness;
         }
 
         private Body CreateArm(float offset, float angle, out Body upperarm, out Body forearm, out WeldJoint shoulder)
@@ -225,13 +224,13 @@ namespace BlobFighters.Objects
             WeldJoint elbow = JointFactory.CreateWeldJoint(Scene.World, forearm, upperarm, new Vector2(0f, -ArmLength * 0.5f), new Vector2(0f, ArmLength * 0.5f));
             elbow.FrequencyHz = ArmStiffness;
 
-            shoulder = JointFactory.CreateWeldJoint(Scene.World, body, upperarm, new Vector2(-offset, -BodyHeight + NeckLength), new Vector2(0f, -ArmLength * 0.5f));
+            shoulder = JointFactory.CreateWeldJoint(Scene.World, Body, upperarm, new Vector2(-offset, -BodyHeight + NeckLength), new Vector2(0f, -ArmLength * 0.5f));
             shoulder.FrequencyHz = ArmStiffness;
             shoulder.ReferenceAngle = angle;
 
-            upperarm.IgnoreCollisionWith(body);
+            upperarm.IgnoreCollisionWith(Body);
             upperarm.IgnoreCollisionWith(head);
-            forearm.IgnoreCollisionWith(body);
+            forearm.IgnoreCollisionWith(Body);
             forearm.IgnoreCollisionWith(head);
 
             forearm.OnCollision += OnArmCollision;
@@ -256,7 +255,7 @@ namespace BlobFighters.Objects
 
         private bool OnBaseCollision(Fixture fixtureA, Fixture fixtureB, Contact contact)
         {
-            body.LinearDamping = BodyGroundLinearDamping;
+            Body.LinearDamping = BodyGroundLinearDamping;
             bodyMovementForce = BodyGroundMovementForce;
 
             numGroundContacts++;
@@ -268,7 +267,7 @@ namespace BlobFighters.Objects
             if (--numGroundContacts > 0)
                 return;
 
-            body.LinearDamping = BodyAirLinearDamping;
+            Body.LinearDamping = BodyAirLinearDamping;
             bodyMovementForce = BodyAirMovementForce;
         }
 
@@ -298,7 +297,7 @@ namespace BlobFighters.Objects
             AttackStrength = 0f;
 
             bodyPart.Blob.Health = Math.Max(0f, bodyPart.Blob.Health - attackPower * HealthDamageFactor);
-            bodyPart.Blob.body.ApplyLinearImpulse(((bodyPart.Blob.Position - Position) - Vector2.UnitY * VerticalHitBias) * attackPower * (1 - bodyPart.Blob.Health / MaxHealth));
+            bodyPart.Blob.Body.ApplyLinearImpulse(((bodyPart.Blob.Position - Position) - Vector2.UnitY * VerticalHitBias) * attackPower * (1 - bodyPart.Blob.Health / MaxHealth));
 
             return true;
         }
@@ -312,7 +311,7 @@ namespace BlobFighters.Objects
 
         private void DrawBody(SpriteBatch spriteBatch)
         {
-            DrawBodyPart(body, bodyTexture, Color, spriteBatch, null, new Vector2(0f, (BodyHeight - BodyWidth * 0.5f) * 0.5f));
+            DrawBodyPart(Body, bodyTexture, Color, spriteBatch, null, new Vector2(0f, (BodyHeight - BodyWidth * 0.5f) * 0.5f));
         }
 
         private void DrawLeftArm(SpriteBatch spriteBatch)
@@ -329,10 +328,10 @@ namespace BlobFighters.Objects
 
         protected override void OnUpdate(float deltaTime)
         {
-            Position = body.Position;
-            Rotation = body.Rotation;
+            Position = Body.Position;
+            Rotation = Body.Rotation;
 
-            body.ApplyTorque(-body.Rotation * BodyRotationForce);
+            Body.ApplyTorque(-Body.Rotation * BodyRotationForce);
 
             if (!InputEnabled)
                 return;
@@ -364,7 +363,7 @@ namespace BlobFighters.Objects
                         direction = 1;
                 }
 
-                body.ApplyForce(new Vector2(state.ThumbSticks.Left.X * bodyMovementForce, 0f));
+                Body.ApplyForce(new Vector2(state.ThumbSticks.Left.X * bodyMovementForce, 0f));
             }
 
             if (AttackStrength > 0)

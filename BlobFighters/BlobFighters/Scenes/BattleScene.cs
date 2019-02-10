@@ -156,7 +156,8 @@ namespace BlobFighters.Scenes
                 GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue ran out of health!"));
             else if (orangeBlob.IsDead)
                 GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft, orangeLivesLeft - 1, "Orange ran out of health!"));
-            else if (Math.Abs(blueBlob.Position.Y - orangeBlob.Position.Y) > MaxHeightDifference)
+            //else if (Math.Abs(blueBlob.Position.Y - orangeBlob.Position.Y) > MaxHeightDifference)
+            else if (blueBlob.Body.LinearVelocity.Y > 45f || orangeBlob.Body.LinearVelocity.Y > 45f)
             {
                 if (blueBlob.Position.Y > orangeBlob.Position.Y)
                     GameManager.Instance.LoadScene(new BattleScene(blueLivesLeft - 1, orangeLivesLeft, "Blue fell too far!"));
